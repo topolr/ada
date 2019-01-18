@@ -1,0 +1,1 @@
+"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _adajs=require("adajs");class LoadingService extends _adajs.Service{defaultData(){return{}}onupdate(e,a){return e}}var _default=LoadingService;exports.default=_default;

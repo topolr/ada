@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="418px" height="206px" viewBox="0 0 418 206" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.2 (51160) - http://www.bohemiancoding.com/sketch -->
+    <title>ddm</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="ddm">
+            <rect id="Rectangle-6" fill="#FFFFFF" x="0" y="0" width="418" height="206"></rect>
+            <g transform="translate(22.000000, 64.000000)">
+                <circle id="Oval-9" stroke="#88CBF8" fill-opacity="0.467419611" fill="#D4E3F6" cx="243.5" cy="39.5" r="24.5"></circle>
+                <text id="{data}" font-family="FZLTXHK--GBK1-0, Lantinghei SC" font-size="12" font-weight="300" fill="#122F52">
+                    <tspan x="57" y="42">{data}</tspan>
+                </text>
+                <text id="(" font-family="FZLTXHK--GBK1-0, Lantinghei SC" font-size="12" font-weight="300" fill="#122F52">
+                    <tspan x="48" y="42">(</tspan>
+                </text>
+                <text id=")" font-family="FZLTXHK--GBK1-0, Lantinghei SC" font-size="12" font-weight="300" fill="#122F52">
+                    <tspan x="174" y="42">)</tspan>
+                </text>
+                <text id="," font-family="FZLTXHK--GBK1-0, Lantinghei SC" font-size="12" font-weight="300" fill="#122F52">
+                    <tspan x="96" y="42">,</tspan>
+                </text>
+                <text id="=&gt;" font-family="FZLTXHK--GBK1-0, Lantinghei SC" font-size="12" font-weight="300" fill="#122F52">
+                    <tspan x="186" y="42">=&gt;</tspan>
+                </text>
+                <text id="DOM" font-family="FZLTXHK--GBK1-0, Lantinghei SC" font-size="10" font-weight="300" fill="#122F52">
+                    <tspan x="231" y="43">DOM</tspan>
+                </text>
+                <path d="M250.5,15.5 L253.5,15.5" id="Line-13" stroke="#88CBF8" stroke-linecap="square"></path>
+                <path d="M268.5,39.5 L268.967508,43.4592616" id="Line-14" stroke="#88CBF8" stroke-linecap="square"></path>
+                <path d="M222.5,26.5 L223.5,23.5" id="Line-15" stroke="#88CBF8" stroke-linecap="square"></path>
+                <path d="M224.5,55.5 L222.5,54.5" id="Line-16" stroke="#88CBF8" stroke-linecap="square"></path>
+                <text id="DDM-=" font-family="FZLTXHK--GBK1-0, Lantinghei SC" font-size="12" font-weight="300" fill="#122F52">
+                    <tspan x="0" y="43"> DDM =</tspan>
+                </text>
+                <text id="&lt;template&gt;" font-family="FZLTXHK--GBK1-0, Lantinghei SC" font-size="12" font-weight="300" fill="#122F52">
+                    <tspan x="104" y="42">&lt;template&gt;</tspan>
+                </text>
+                <circle id="Oval-12" fill="#50E3C2" cx="74" cy="52" r="3"></circle>
+                <circle id="Oval-12" fill="#50E3C2" cx="137" cy="27" r="3"></circle>
+                <circle id="Oval-11" stroke="#B2D0F4" cx="243" cy="39" r="38"></circle>
+                <circle id="Oval-12" fill="#50E3C2" cx="215" cy="13" r="3"></circle>
+                <circle id="Oval-12" fill="#50E3C2" cx="215" cy="65" r="3"></circle>
+                <circle id="Oval-10" stroke="#FFFFFF" stroke-width="3" fill="#35495D" cx="219" cy="33" r="5"></circle>
+                <circle id="Oval-10" stroke="#FFFFFF" stroke-width="3" fill="#D2323C" cx="229" cy="60" r="5"></circle>
+                <circle id="Oval-10" stroke="#FFFFFF" stroke-width="3" fill="#2F80B6" cx="267" cy="33" r="5"></circle>
+                <circle id="Oval-10" stroke="#FFFFFF" stroke-width="3" fill="#2F80B6" cx="244" cy="14" r="5"></circle>
+                <circle id="Oval-10" stroke="#FFFFFF" stroke-width="3" fill="#2F80B6" cx="259" cy="58" r="5"></circle>
+                <text id="event-proxy" font-family="FZLTXHK--GBK1-0, Lantinghei SC" font-size="10" font-weight="300" fill="#222427">
+                    <tspan x="274" y="10">event proxy</tspan>
+                </text>
+                <text id="data-cache" font-family="FZLTXHK--GBK1-0, Lantinghei SC" font-size="10" font-weight="300" fill="#222427">
+                    <tspan x="283" y="23.8796694">data cache</tspan>
+                </text>
+                <text id="dom-effect" font-family="FZLTXHK--GBK1-0, Lantinghei SC" font-size="10" font-weight="300" fill="#222427">
+                    <tspan x="284" y="53.1203306">dom effect</tspan>
+                </text>
+                <text id="dom-query" font-family="FZLTXHK--GBK1-0, Lantinghei SC" font-size="10" font-weight="300" fill="#222427">
+                    <tspan x="277" y="67">dom query</tspan>
+                </text>
+                <text id="dependent-collect" transform="translate(330.615694, 35.500000) rotate(-1.000000) translate(-330.615694, -35.500000) " font-family="FZLTXHK--GBK1-0, Lantinghei SC" font-size="10" font-weight="300" fill="#222427">
+                    <tspan x="288.115694" y="38.5">dependent collect</tspan>
+                </text>
+                <polyline id="Path-7" stroke="#50E3C2" points="74.4673117 52.9927303 87.5219968 65.3195518 214.546745 65.3195518"></polyline>
+                <polyline id="Path-8" stroke="#50E3C2" points="137.702675 26.0081598 149.627557 13.0096544 214.172741 13.0096544"></polyline>
+                <path d="M253.5,62.5 L251.5,64.0301406" id="Line-17" stroke="#88CBF8" stroke-linecap="square"></path>
+            </g>
+        </g>
+    </g>
+</svg>

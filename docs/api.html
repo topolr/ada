@@ -1,0 +1,174 @@
+<h2 id="模板">模板</h2><p>Ada DDM所使用的是字符串模板引擎，首次渲染是使用html字符串直接填充DOM，此外都是基于<code>diff</code>使用DOM APIs去动态修改DOM。该模板引擎有以下简单使用原则</p><ul><li>任何标签的标签属性、标签体都可以使用赋值语法</li><li>标签属性分为输出属性和非输出属性，非输出属性用<code>@</code>开头，它不会最终作用到DOM上，同时其可以接受非简单类型数据。</li><li>事件使用<code>on</code>开头+事件名来绑定，其属于非输出属性</li><li>模板语法其间的纯html不能存在不闭合的结构</li></ul><h3 id="基本语法">基本语法</h3><p>1.赋值</p><pre><code class="language-html">&lt;div&gt;{{ value }}&lt;/div&gt;</code></pre><blockquote><p>注意{{空格value空格}}空格，以避免与指令冲突。</p></blockquote><p>2.遍历数组</p><pre><code class="language-html">{{list data as item index}}
+    &lt;div&gt;code...&lt;/div&gt;
+{{/list}}</code></pre><p>3.遍历对象</p><pre><code class="language-html">{{map object as value key}}
+    &lt;div&gt;code...&lt;/div&gt;
+{{/map}}</code></pre><p>4.条件</p><pre><code class="language-html">{{if data}}
+    &lt;div&gt;a&lt;/div&gt;
+{{elseif aa=&#39;cc&#39;}}
+    &lt;div&gt;c&lt;/div&gt;
+{{else}}
+    &lt;div&gt;b&lt;/div&gt;
+{{/if}}</code></pre><p>5.log</p><pre><code class="language-html">{{log data}}</code></pre><p>6.设置变量</p><pre><code class="language-html">{{set a=&#39;aaa&#39;}}</code></pre><p>7.break</p><pre><code class="language-html">{{list list as item}}
+    {{if item.name===&#39;aa&#39;}}
+        {{break}}
+    {{/if}}
+{{/list}}</code></pre><blockquote><p>break只能放到list或者map中使用。</p></blockquote><p>8.标签属性</p><ul><li>输入到标签中的属性<code>property=&quot;value&quot;</code>，与HTML标准一致</li><li>缓存到DDM中的属性<code>@property=&quot;value&quot;</code>，可以将对象进行缓存，并且不会输出到标签</li></ul><h3 id="assign directives (赋值指令)">assign directives (赋值指令)</h3><p>赋值指令是赋值语法的拓展，语法为<code>{{directiveName value}}</code>，赋值指令是一个返回html的函数，它接受赋值变量的值。它为了简化处理单值运算而设计。</p><blockquote><p>这里需要注意一定要避免XSS的问题</p></blockquote><pre><code class="language-javascript">function (data) {
+    return &#39;&lt;br/&gt;&#39;;
+}</code></pre><p>定义全局赋值指令</p><pre><code class="language-javascript">import {DDM} from &quot;adajs&quot;;
+
+DDM.setDefaultAssignDirective(diretiveNam,function() {
+  //code...
+});</code></pre><p>默认全局赋值指令</p><ul><li><code>{{html htmlcode}}</code> 输出html片段</li></ul><h3 id="macro(宏)">macro(宏)</h3><p>DDM模板支持自定义指令<code>&lt;@macroName/&gt;</code>或<code>&lt;@macroName&gt;&lt;@macroName/&gt;</code>，自定义指令是一个函数。</p><pre><code class="language-javascript">function({bodyStr, props, events, attrs}) {
+    return {template, data: {}};
+}</code></pre><p>它接受<code>bodyStr</code>，即非单标签使用时标签内部的字符串；<code>props</code>标签非显示属性；<code>attrs</code>标签显示属性；<code>events</code>标签绑定的事件。它返回一个新的模板和依赖数据。</p><p>定义全局指令</p><pre><code class="language-javascript">import {DDM} from &quot;adajs&quot;;
+
+DDM.setDefaultMacro(macroName,function() {
+  //code...
+});</code></pre><p>默认的全局指令</p><ul><li><code>&lt;@self/&gt;</code> 递归调用</li></ul><h3 id="自定义标签">自定义标签</h3><pre><code class="language-html">&lt;div&gt;
+    &lt;div&gt;hello down&lt;/div&gt;
+    &lt;hello class=&quot;aa&quot; data-value=&quot;aa&quot;&gt;&lt;/hello&gt;
+&lt;/div&gt;</code></pre><p>自定义标签首先从局部定义中检查是否定义，再从全局检查，最后检查是否为合法的浏览器支持标签。</p><ul><li>从View<code>tags()</code>方法中定义局部自定义标签，只在View的模版中生效</li><li>使用<code>DDM.setDefaultTag(name, generator)</code>方法定义全局自定义标签，但可能被局部定义覆盖</li></ul><pre><code class="language-javascript">DDM.setDefaultTag(&quot;icon&quot;, {
+    template({attrs}) {
+        return `&lt;svg class=&quot;${attrs.class || &quot;ada-icon&quot;}&quot;&gt;&lt;use xlink:href=&quot;#${attrs.id}&quot;&gt;&lt;/use&gt;&lt;/svg&gt;`;
+    }
+});</code></pre><p>默认全局自定义标签</p><ul><li><code>&lt;icon id=&quot;&quot;/&gt;</code> 通过传入的<code>id</code>输出一个svg图标</li><li><code>&lt;module&gt;&lt;/module&gt;</code> 解析一个匿名组件</li></ul><blockquote><p>自定义标签是通过宏实现的,它是宏的语法糖</p></blockquote><h3 id="自定义函数">自定义函数</h3><pre><code class="language-html">&lt;div class=&quot;{{ classname(data,[&#39;head&#39;,&#39;close&#39;,&#39;scroll&#39;]) }}&quot; data-find=&quot;header&quot;&gt;&lt;/div&gt;</code></pre><p>参数：</p><ul><li>data<ul><li>模版数据</li><li>属性数据，当模版数据中该属性值为<code>true</code>则将该属性添加到<code>classList</code>，否则不加</li></ul></li></ul><p>定义全局函数</p><pre><code class="language-javascript">import {DDM} from &quot;adajs&quot;;
+
+DDM.setDefaultFunctions(fnName,function() {
+  //code...
+});</code></pre><p>默认的全局函数</p><ul><li><code>classname()</code> 用于处理复杂class name生成</li></ul><h2 id="注解">注解</h2><p>Ada中用元数据的方式来标识类或者类方法来达到一定的目的。</p><h3 id="view">view</h3><p>ada中的View是带指定注解的普通JavaScript类，带view注解的类是才能够被ada解析成可用类。view注解会接受一个对象作为元数据。</p><pre><code class="language-javascript">@view({
+    tagName:&quot;&quot;,//全局配置tagName，全局可用
+    className:&quot;&quot;,//view的DOM的class值，任何带该值的view会对其关联的style(css)进行基于class的“隔离处理”
+    template:&quot;&lt;filepath&gt;&quot;,//该view关联的模板
+    style:&quot;&lt;stylepath&gt;&quot;,//该view关联的样式
+    dataset: {
+        service: Service,//action处理类
+        dataset: DataSet//数据集处理器类
+    }
+})</code></pre><h3 id="root">root</h3><p>root注解除了注解名与view不同外，其他与view注解相同。一个ada项目中只能有一个标示为root的类作为启动类，多个标识为root的view会以最后载入的为准。</p><pre><code class="language-javascript">@root({
+    className:&quot;&quot;,
+    template:&quot;&lt;filepath&gt;&quot;,
+    style:&quot;&lt;stylepath&gt;&quot;
+})</code></pre><h3 id="binder">binder</h3><p>binder注解是作用于类方法的，它表示该方法可能会被模板中的某个事件调用</p><pre><code class="language-javascript">@binder(&quot;name&quot;)</code></pre><p>比如在模板中可能存在这样的代码</p><pre><code class="language-html">{{list list as item}}
+    &lt;div class=&quot;test&quot; onclick=&quot;{{test(item)}}&quot;&gt;{{item.name}}&lt;/div&gt;
+{{/list}}</code></pre><p>其中<code>onclick=&quot;{{test()}}&quot;</code>则表示当该元素被点击时会调用模板关联类中被标识为<code>@binder(&quot;test&quot;)</code>的类方法调用，如果不存在则不会被处理</p><p>那么在类中可能会存在这样的代码</p><pre><code class="language-javascript">@view({
+    className:&quot;test&quot;,
+    template:&quot;&quot;,
+    style:&quot;&quot;
+})
+class Test extends View{
+    constructor(parameters){
+        super(parameters);
+        this.render();
+    }
+
+    @binder(&quot;test&quot;)
+    test({e,item}){
+        console.log(&quot;-----clicked----&quot;,item);
+        e.stopPropagation();
+    }
+}</code></pre><p>其中被标识为binder的方法其参数对一个对象，其中包括<code>event</code>事件对象，以及参数对象，用解构的写法更佳</p><h3 id="handler">handler</h3><p>handler是用来标识view间传递事件的监听函数，其中name为事件名。</p><pre><code class="language-javascript">@handler(&quot;name&quot;)</code></pre><h3 id="action">action</h3><p>action是<code>Service`</code>中注解，用来标识服务处理函数</p><pre><code class="language-javascript">@action(&quot;name&quot;)</code></pre><pre><code class="language-javascript">import {action,Service} from &quot;adajs&quot;;
+
+class TestService extends Service{
+    constructor(parameters){
+        super(parameters);
+    }
+
+    @action(&quot;test&quot;)
+    test(){
+        return Promise.resolve({&quot;aa&quot;:&quot;aa&quot;});
+    }
+
+    @action(&quot;testsync&quot;)
+    testSync(){
+        return {&quot;aa&quot;:&quot;aa&quot;};
+    }
+}</code></pre><h3 id="subscribe">subscribe</h3><p>Dispatcher类的回调</p><pre><code class="language-javascript">import {binder, View, view, subscribe} from &quot;adajs&quot;;
+import dispatcher from &quot;./../../dispatcher&quot;;
+
+@view({
+    className: &quot;pagemenu&quot;,
+    template: &quot;./template.html&quot;,
+    style: &quot;./style.scss&quot;
+})
+class Pagemenu extends View {
+    oncreated() {
+        dispatcher.observe(this);
+    }
+
+    @subscribe(&quot;scroll&quot;)
+    scroll() {
+        let top = (window.document.scrollingElement || window.document.body).scrollTop;
+        if (top &gt; 120) {
+            this.unobserve(this);
+        }
+    }
+}
+
+export default Pagemenu;</code></pre><h2 id="内置类">内置类</h2><h3 id="ddm对象">DDM对象</h3><p>DDM对象中的方法主要用于获取DOM信息的，这其中包括DOM隔离问题。DOM隔离是避免跨DDM获取DOM越界，不能够直接使用DOM查询APIs进行DOM获取，如果这样很容易的就会穿越组件DDM的界限，导致处理组件界外元素的可能，而应该优先使用DDM提供的方法获取DOM元素。</p><p><strong>finder(name) → MapDom</strong></p><ul><li><code>name</code>String - finder名</li></ul><p>如果在模板中定义了这样的片段</p><pre><code class="language-html">&lt;div&gt;
+    &lt;div class=&quot;test&quot; data-find=&quot;test&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre><p>当view<code>onready</code>，这个代码片段将被渲染到DOM中，此时试图获取div.test这个元素，可能有下面的方式：</p><pre><code class="language-html">let element=[...this.getElement().querySelectorAll(&quot;test&quot;)][0];</code></pre><p>或者</p><pre><code class="language-html">let element=this.getDDM().finder(&quot;test&quot;).getElement();</code></pre><p>第一种情况可能引入view的DOM越界，获取到了其他view中的元素，这很不安全，第二种则放心使用，它可能会获取到该view中的具有<code>data-find</code>属性的元素。</p><p>DDM可以缓存数据，也就是那些标签上非显示的属性，获取他们只能通过DDM的api</p><pre><code class="language-html">this.getDDM().finder(&quot;test&quot;).getAttributes();</code></pre><p><strong>finders(name) → [MapDom]</strong></p><ul><li><code>name</code>String - finder名</li></ul><p>这个方法是获取所有标识<code>data-find</code>属性的标签，finder则是只获取第一个</p><p><strong>group(name) → MapDom</strong></p><ul><li><code>name</code>String - group名</li></ul><p>这个方法是获取第一个标识<code>data-group</code>属性的标签</p><p><strong>groups(name) → [MapDom]</strong></p><ul><li><code>name</code>String - group名</li></ul><p>这个方法是获取所有标识<code>data-group</code>属性的标签，只获取第一个</p><h3 id="mapdom">MapDom</h3><p>DDM与DOM的映射对象，他们彼此一一对应，DDM携带更多的缓存信息。</p><p><strong>getAttributes() → {}</strong></p><p>获取所有的非显示属性对象</p><p><strong>getAttribute(propName) → {}</strong></p><ul><li><code>propName</code>String - 属性名</li></ul><p>根据非显示属性名获取值</p><p><strong>getEventInfo() → {}</strong></p><p>获取该元素绑定的事件信息</p><p><strong>isListenedEvent(type) → boolean</strong></p><ul><li><code>type</code>String - 事件名</li></ul><p>判断该元素是否监听了某事件</p><p><strong>getElement() → DOM</strong></p><p>根据该DDM映射对象获取真实DOM元素</p><p><strong>groupi(name = &quot;&quot;) → [MapDom]</strong></p><ul><li><code>name</code>String - groupi名</li></ul><p>获取所有该元素下标识<code>data-group</code>属性的标签元素</p><h3 id="view">View</h3><p>view是框架的基类</p><p><strong>getDataSets() → DataSet</strong></p><p>获取该view的DataSet对象</p><p><strong>onunload()</strong></p><p>view被移除时的回调函数，用于处理view的善后工作，view的移除是基于DOM的，当view从文档中被移除该view就认为被移除，这个过程是全局有效的，即使view并不是使用view提供的移除方法移除的。</p><pre><code class="language-javascript">onunload(){
+    clearInterval(this._interval);
+}</code></pre><p><strong>onupdated()</strong></p><p>当view的DOM更新完成时调用</p><blockquote><p>view的DOM未必在每次提交时都会更新，因为提交更新请求未必影响DOM更新，只有影响到模版使用的属性修改，DOM才会更新</p></blockquote><p><strong>getElement()</strong></p><p>获取该view所在DOM的element，这很有用，你可以把这个view变成完全的基于DOM APIs的view</p><pre><code class="language-javascript">constructor(parameters){
+    super(parameters);
+    [...this.getElement().querySelectorAll(&quot;.test&quot;)].forEach(element=&gt;{
+        let a=document.createElement(&quot;div&quot;);
+        a.setAttribute(&quot;class&quot;,&quot;subtest&quot;);
+        element.appendChild(a);
+    });
+}</code></pre><p><strong>getDDMContainer()</strong></p><p>获取DDM所在的element，当然这往往就是view所在的element，除了BondViewGroup类，因为这个类需要隔离DDM和DOM操作</p><p><strong>getDDM() → DDM</strong></p><p>获取该view内的DDM对象</p><pre><code class="language-javascript">someViewMethod(){
+    let containerElement=this.getDDM().finder(&quot;container&quot;).getElement();
+    console.log(containerElement);
+}</code></pre><p><strong>getParent() → View</strong></p><p>获取view父容器对象</p><p><strong>getId() → String</strong></p><p>获取view的id，每一个view都会有一个唯一id</p><p><strong>isRemoved() → boolean</strong></p><p>判断该view是否被移除，很多时候view会被糟糕的逻辑缓存比如引用，当该view被移除后仍旧使用那么这个方法就很有用了。</p><p><strong>dispatchEvent(type, data, isdefault = true)</strong></p><p>view分发事件的方法，<code>type</code> 为事件类型，<code>data</code>为传递的数据，<code>isdefault</code>为传播方法，当为<code>true</code>时为向上分发反之则向子view传递</p><p><strong>getCurrentState() → Object</strong></p><p>该方法返回数据集的数据</p><p><strong>className → ClassNames</strong></p><p>获取该view的类全名，模块路径加class名</p><p><strong>getElementClassName(className = &quot;&quot;) → String</strong></p><p>如果view被注解了className那么其模板会对标签的class属性进行特殊处理，将任何模板中的class值添加前缀，前缀为该类className定义的值，那么在view中使用class名时就需要特殊处理才是最终的值，这个方法帮助获取最终class值。</p><p><strong>getName() → String</strong></p><p>返回view传入的<code>name</code>值</p><blockquote><p><code>name</code>应该在统一父元素下保持唯一</p></blockquote><p><strong>oncreated()</strong></p><p>当view实例创建完成时，此时模版没有被渲染，容器DOM ready，该回调可以返回<code>Promise</code>用于织入异步逻辑</p><p><strong>onready()</strong></p><p>当view模版渲染完成时，子view都ready，该回调可以返回<code>Promise</code>用于织入异步逻辑</p><p><strong>onbeforecommit()</strong></p><p>当<code>DataSet</code>的<code>commit</code>方法调用前，该回调可以返回<code>Promise</code>用于织入异步逻辑</p><p><strong>oncommited()</strong></p><p>当<code>DataSet</code>的<code>commit</code>方法执行完后，该回调可以返回<code>Promise</code>用于织入异步逻辑</p><p><strong>update(data) → Promise</strong></p><ul><li><code>data</code>Object - 数据</li></ul><p>更新view</p><blockquote><p>该方法不应该被主动调用（StaticViewGroup除外），因为view是响应式的，应该更多关注数据处理</p></blockquote><p><strong>commit(type, data) → Promise</strong></p><ul><li><code>type</code>String - <code>action</code>名</li><li><code>data</code>Object - 数据</li></ul><p>提交数据状态更新操作</p><p><strong>tags() → Object</strong></p><p>这是一个需要<code>override</code>的方法，需要返回用于模版处理的标签名与具体View类的映射</p><p><strong>isRendered()</strong></p><p>判断view是否已经进行了首次渲染</p><h3 id="viewconnector">ViewConnector</h3><p>数据连接器类</p><p><strong>setContextDataSets(connect) → Object</strong></p><ul><li><code>connect(DataSet,getter,setter)</code>Function - 连接器函数<ul><li><code>DataSet</code>DataSet - 指定<code>DataSet</code>类型，用于筛选</li><li><code>getter(state)</code>Function - 获取指定数据<ul><li><code>state</code>Object - 被连接状态的状态</li></ul></li><li><code>setter(data)</code>Function - 根据传入值生成新的状态<ul><li><code>data</code>Object - 新状态(getter逻辑返回的)</li></ul></li></ul></li></ul><p>用于定义数据连接，并返回新状态，它可以相应被连接view所用状态的修改</p><pre><code class="language-javascript">import {view, ViewConnector} from &quot;adajs&quot;;
+import Reply from &quot;./../reply&quot;;
+import ContainerService from &quot;./../container/state&quot;;
+
+@view({
+    className: &quot;connector&quot;,
+    template: &quot;./template.html&quot;,
+    style: &quot;./style.scss&quot;
+})
+class Connector extends ViewConnector {
+    setContextDataSets(connect) {
+        let userInfo = connect(ContainerService, current =&gt; {
+            return current.userInfo;
+        }, (current, data) =&gt; {
+            current.userInfo = data;
+        });
+        return {userInfo, commentId: &quot;&quot;};
+    }
+
+    onupdate(current, data) {
+        current.commentId = data.commentId;
+        return current;
+    }
+
+    tags() {
+        return {
+            reply: Reply
+        }
+    }
+}
+
+export default Connector;</code></pre><p><strong>onupdate(current, data) → Promise|Object</strong></p><ul><li><code>current</code>Object - 当前状态</li><li><code>data</code>Object - 更新参数</li></ul><p>当有数据操作情况时调用，即view外部调用<code>view.update(data)</code>时的回调，它可以返回新状态或者Promise，但Promise需要返回最终状态</p><p><strong>getCurrentState() → Object</strong></p><p><strong>update(data) → Promise</strong></p><h3 id="viewgroup">ViewGroup</h3><p>ViewGroup的模板拥有添加子组件的能力，所以子组件的处理是基于DDM自动完成的，而且管理子组件也只能通过维护数据的方式完成。</p><blockquote><p>ViewGroup extends View</p></blockquote><p><strong>tags()</strong></p><p>用于定义该view模版中的自定义标签配置，系统会首先以局部配置为准再去全局获取配置</p><p><strong>onchildremoved()</strong></p><p>当子组件被移除时调用，该回调可以返回<code>Promise</code>用于织入异步逻辑</p><p><strong>onchildadded()</strong></p><p>当有子组件被添加时调用，该回调可以返回<code>Promise</code>用于织入异步逻辑</p><p><strong>getChildAt(index = 0) → View</strong></p><ul><li><code>index</code>Int - view下标</li></ul><p>安索引获取子view</p><p><strong>getChildByType(type) → View</strong></p><ul><li><code>type</code>View - view类</li></ul><p>安子view类型获取子view</p><pre><code class="language-javascript">import {ViewGroup} from &quot;adajs&quot;;
+import Subview from &quot;./subview.js&quot;;
+
+class ParentView extends ViewGroup{
+    constructor(parameters){
+        super(parameters);
+        this.render();
+        let subview=this.getChildByType(Subview);
+    }
+}</code></pre><p><strong>getChildren() → [View]</strong></p><p>获取所有子view</p><p><strong>getChildByName(name) → View</strong></p><ul><li><code>name</code>String - view的name值</li></ul><p>获取具有name的view实例</p><h3 id="staticviewgroup">StaticViewGroup</h3><p>StaticViewGroup的模板没有管理子组件的能力，所以它的子组件只能够通过自身的API来完成，是手动的。好处就是比较灵活，省去维护一些没有实际意义的状态的浪费。</p><blockquote><p>StaticViewGroup extends ViewGroup extends View</p></blockquote><p><strong>addChild(type = null, {option = {}, container = null, attrs = {}, override = {}, data = {}} = {}) → Promise</strong></p><p>添加子view，<code>type</code>为子组件的构造函数，<code>option</code>为子组件初始化的选项，<code>container</code>添加子组件所在的element，默认为document.body，<code>attrs</code>子组件标签属性。<code>override</code>运行时覆盖实例属性（方法） <code>data</code>传递给组件的数据。</p><pre><code class="language-javascript">import {ViewGroup} from &quot;adajs&quot;;
+import Subview from &quot;./subview&quot;;
+
+class Group extends ViewGroup{
+    constructor(parameters){
+        super(parameters);
+        this.addChild(Subview,{
+            container:this.getElement()//将Subview添加到组件内部DOM中
+        });
+    }
+}</code></pre><p><strong>removeChild(view)</strong></p><ul><li><code>view</code>View - view实例</li></ul><p>根据子组件实例去除子组件</p><p><strong>removeChildAt(index = 0) → View</strong></p><ul><li><code>index</code>Int - view下标</li></ul><p>根据子组件下标去除子组件</p><p><strong>removeAllChild()</strong></p><p>清空所有子组件</p><p><strong>removeChildByType(type)</strong></p><ul><li><code>type</code>View - view类</li></ul><p>根据子组件构造函数去除子组件</p><p><strong>removeChildByName(name)</strong></p><ul><li><code>name</code>String - view的name值</li></ul><p>删除具有name的view</p><h3 id="bondviewgroup">BondViewGroup</h3><p>BondViewGroup是“混合”管理子组件的，它会在内部分割出一块区域专用做DDM管理子组件，一个区域用于手动管理。</p><blockquote><p>BondViewGroup extends ViewGroup extends View</p></blockquote><h3 id="dataset">DataSet</h3><p>数据集合，它可以管理多个订阅者，并在某一个订阅者触发数据处理后将结果分发给所有订阅者。它只能通过注解声明式创建，并决定是否按组件树向下传递，任何的声明使用该类型对象的子组件都会被注入该对象，实现共享。数据处理逻辑由Service类提供，并且可以被分片aspect拦截。</p><p><strong>commit(type, data) → Promise</strong></p><ul><li><code>type</code>String - <code>action</code>名</li><li><code>data</code>Object - <code>action</code>参数</li></ul><p>提交<code>DataSet</code>更新请求</p><p><strong>getData() → object</strong></p><p>获取数据集当前的数据</p><p><strong>toggleService(serviceClass)</strong></p><ul><li><code>serviceClass</code>Service - <code>Service</code>类</li></ul><p>切换view<code>DataSet</code>的<code>Service</code>类</p><p>切换数据处理类</p><p><strong>getComputeData(name) → object</strong></p><ul><li><code>name</code>String - <code>compute</code>注解名</li></ul><p>返回<code>DataSet</code>计算值</p><h3 id="transactdataset">TransactDataSet</h3><p>事务型数据集，可以保存提交的数据操作</p><p>** getTransactionList() → []**</p><p>获取数据操作集合</p><p>** rollback(step) → Promise**</p><p>回滚</p><p>** travel(step = 0) → Promise**</p><p>将值切换到其中某一步操作后</p><h3 id="service">Service</h3><p>数据处理类</p><p><strong>defaultData() → object</strong></p><p>需要覆盖该方法以提供默认值</p><p><strong>onupdate(current, data) → Promise|object</strong></p><ul><li><code>current</code>Object - 当前状态</li><li><code>data</code>Object - 传入的<code>action</code>参数</li></ul><p>当有数据操作情况时调用，即view外部调用<code>view.update(data)</code>时的回调，它可以返回新状态或者Promise，但Promise需要返回最终状态</p><h3 id="dispatcher">Dispatcher</h3><p>事件发送类</p><p>** observe(view) **</p><p>添加view</p><p>** unobserve(view) **</p><p>删除view</p><p>** dispatch(type,data) **</p><p>分发消息</p><h3 id="modules">Modules</h3><p>ada全局模块管理器，可以用来导入，遍历，获取等操作。</p><p><strong>excute(path)</strong></p><p>导入指定模块</p><p><strong>scan(fn)</strong></p><p>遍历所有的模块</p><p><strong>scanClass(fn)</strong></p><p>遍历所有的JavaScript类</p><p><strong>filter(fn)</strong></p><p>过滤所有载入的模块</p><p><strong>get(path) → {}</strong></p><p>获取已经导入的模块</p><p><strong>has(path) → boolean</strong></p><p>是否包含指定的模块</p><p><strong>set(path, _exports)</strong></p><p>设置模块，它可以运行时手动添加或者修改模块，但它不会音响已经导出的模块。</p><h3 id="ddm">DDM</h3><p><strong>static setDefaultMacro(key, fn)</strong></p><p>设置DDM模板全局macro</p><pre><code class="language-javascript">import {DDM} from &quot;adajs&quot;;
+DDM.setDefaultMacro(&quot;test&quot;,function() {
+  //code...
+});</code></pre><p><strong>static setDefaultAssignDirective(key, fn)</strong></p><p>设置全局指令</p><p><strong>static setDefaultFunctions(name, fn)</strong></p><p>设置全局函数</p><p><strong>static setDefaultTag(name, generator)</strong></p><p>设置全局标签</p><h3 id="passable">Passable</h3><p>生成Immutable数据，以便保护性传递。被保护的数据不能够直接修改，需要在生成器函数中处理，然后生成新的数据，被保护数据保持不变，相同结构得到共享。</p><p><strong>constructor(data)</strong></p><ul><li><code>data</code>Object - 被保护的数据</li></ul><p><strong>pass(fn, parameter = {}, scope = {})</strong></p><ul><li><code>fn</code>Function - 生成器函数，用于处理Imuutable数据，生成新的数据</li><li><code>parameter</code>Object - 传递给生成器函数的参数</li><li><code>scope</code>Object - 生成器函数的上下文</li></ul><p>用于处理并生成新的数据</p><p><strong>static get(data) → Passable</strong></p><ul><li><code>data</code>Object - 被保护对象</li></ul><p>用于创建Passable的静态函数</p><h3 id="util">util</h3><p>Ada暴露的工具函数</p><p><strong>randomid(leng) → String</strong></p><ul><li><code>leng</code>Int - 字符串长度</li></ul><p>返回唯一字符串</p><p><strong>hashCode(str) → String</strong></p><ul><li><code>str</code>String - 字符串</li></ul><p>获取已知字符串的hashcode</p><p><strong>isString(object) → Boolean</strong></p><ul><li><code>object</code>Object - 传入值</li></ul><p>判断传入值是否为字符串</p><p><strong>isFunction(object) → Boolean</strong></p><ul><li><code>object</code>Object - 传入值</li></ul><p>判断传入值是否为函数</p><p><strong>isEqual(a,b) → Boolean</strong></p><ul><li><code>a</code>Object - 传入值</li><li><code>b</code>Object - 传入值</li></ul><p>判断两个传入值是否相等，深度比较</p><p><strong>isObject(object) → Boolean</strong></p><ul><li><code>object</code>Object - 传入值</li></ul><p>判断传入值是否为对象</p><p><strong>isPlainObject(object) → Boolean</strong></p><ul><li><code>object</code>Object - 传入值</li></ul><p>判断传入值是否Plain对象</p><p><strong>isArray(object) → Boolean</strong></p><ul><li><code>object</code>Object - 传入值</li></ul><p>判断传入值是否为数组</p><p><strong>isQueryString(object) → Boolean</strong></p><ul><li><code>object</code>Object - 传入值</li></ul><p>判断传入值是否为url query字符串</p><p><strong>excuteStyle(styleCode)</strong></p><ul><li><code>styleCode</code>String - 样式字符串</li></ul><p>使传入样式字符串生效</p><p><strong>encodeHTML(str) → String</strong></p><ul><li><code>str</code>Object - html字符串</li></ul><p>encode html字符串</p><p><strong>extend([boolean]...Object) → Object</strong></p><ul><li><code>object</code>Object -</li></ul><p>与<code>jquery.extend()</code>相同</p><p><strong>clone(object) → Object</strong></p><ul><li><code>object</code>Object - 待clone对象</li></ul><p>深克隆对象</p><h2 id="context">Context</h2><p>上下文对象，提供所需的全局资源。也是渲染器隔离的保证。</p><ul><li><strong>request</strong> 提供http请求的对象</li><li><strong>config</strong> 全局配置</li><li><strong>window</strong> 当为浏览器时，为<code>window</code>对象</li><li><strong>document</strong> 当为浏览器时，为<code>document</code>对象</li><li><strong>snapshot()</strong> 生成镜像</li><li><strong>hook()</strong> 设置全局钩子</li><li><strong>unhook()</strong> 取消全局钩子</li></ul><h2 id="ssr支持">SSR支持</h2><p>ada提供<code>adajs/server</code>入口，并提供<code>Renderer, DistRenderer, DistSteamRenderer</code>3个实现类</p><h3 id="renderer">Renderer</h3><p>同构代码渲染器</p><ul><li><strong>getCurrentHTML()</strong> 获取当前应用状态的html字符串</li><li><strong>getRootView(view, parameters = {})</strong> 获取应用根组件</li></ul><h3 id="distrenderer">DistRenderer</h3><p>dist目录代码渲染器</p><ul><li><strong>outputURL(url)</strong> 输出指定url的字符串，应用状态取决何时调用<code>snapshot()</code></li><li><strong>outputURLs([url])</strong></li></ul><h3 id="diststeamrenderer">DistSteamRenderer</h3><p>dist目录代码渲染器，并以<code>steam</code>方式输出</p><ul><li><strong>outputStream(url)</strong> 输出指定url的字符串流，应用状态取决何时调用<code>snapshot()</code></li></ul><h2 id="全局函数">全局函数</h2><p>全局函数只是代码中全局可用的函数，只有一个imports，用于异步引用模块的。</p><h3 id="import(modulepath) = promise">import(modulePath) =&gt; Promise</h3><h3 id="入口文件">入口文件</h3><ul><li>正常情况下，如果ada代码不进行ada-pack的处理，则所有的资源(可以Map到的)都是异步引入的</li><li>经过ada-pack处理的代码，会根据“情况”来决定是从压缩包还是从单个文件中获取资源</li><li>为了避免首屏压缩包(主入口文件的依赖)过大，则需要将辅助的资源进行合理划分，避免交叉引用，然后再异步引入</li><li>app.js可以指定主入口和子入口文件夹(将其中的文件都作为子入口)，其他的没有被依赖的文件可以配置为作为子入口(默认开启)也可以舍弃(只保留有依赖的文件，没被依赖的将不被引入)</li><li>Ada提供<code>import</code>方法异步引入模块，更多的时候它用来引入入口模块或者必须保证这些被异步引入的模块没有被上一步舍弃，模块必须被Map到才可以</li></ul>
