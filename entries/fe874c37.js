@@ -1,1 +1,0 @@
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _lazyimage=_interopRequireDefault(require("node_modules/ada-uikit/src/lazyimage/index.js"));function _interopRequireDefault(e){return e&&e.__esModule?e:{default:e}}class ImageWrapper extends _lazyimage.default{}var _default=ImageWrapper;exports.default=_default;

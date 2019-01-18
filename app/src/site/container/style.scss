@@ -1,0 +1,234 @@
+$leftwidth: 200px;
+$contentwidth: 950px;
+$leftclosewidth: 45px;
+
+.container {
+    width: $contentwidth;
+    margin: 0 auto;
+    position: relative;
+    .main {
+        .middle {
+            height: 70%;
+            background-color: #474F6E;
+            background-image:url("./images/bg.jpg");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            .inner{
+                position: absolute;
+                left:0;
+                top:0;
+                right:0;
+                bottom:0;
+                background-color: #474F6E;
+                opacity: .4;
+            }
+        }
+        .left {
+            width: $leftwidth;
+            position: fixed;
+            top: 10px;
+            bottom: 0;
+            background: #fbf9f9;
+            border-top: 5px solid #2F323F;
+            transition: all ease-in-out .3s;
+            transform: rotate(0);
+            .head {
+                text-align: center;
+                //background: white;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 99;
+                height: 180px;
+                .con {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    //background:white;
+                }
+                .logo {
+                    font-size: 80px;
+                    text-align: center;
+                    line-height: 100px;
+                    width: 100px;
+                    display: inline-block;
+                    vertical-align: middle;
+                    margin: 20px 0 0 0;
+                }
+                .icon {
+                    display: inline-block;
+                    vertical-align: middle;
+                    width: 1em;
+                    height: 1em;
+                    stroke-width: 0;
+                    stroke: currentColor;
+                    fill: currentColor;
+                    margin-top: -9px;
+                }
+                .title {
+                    line-height: 50px;
+                    text-align: center;
+                }
+                .version{
+                    text-align: center;
+                    cursor: default;
+                    .num{
+                        display: inline-block;
+                        line-height:20px;
+                        padding:0 15px 0 15px;
+                        border-radius: 15px;
+                        background: #051630;
+                        color:white;
+                        font-size: 12px;
+                    }
+                }
+                &:before {
+                    content: "";
+                    display: block;
+                    position: absolute;
+                    left: 10px;
+                    right: 10px;
+                    bottom: 0;
+                    height: 0;
+                    //border-bottom: 1px solid #D2D2D2;
+                }
+            }
+            .body {
+                position: absolute;
+                top: 195px;
+                bottom: 30px;
+                left: 0;
+                right: 0;
+            }
+            .copyright {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                line-height: 30px;
+                padding: 0 10px 0 10px;
+                color: #959595;
+            }
+            .mask2 {
+                position: fixed;
+                width: $leftwidth;
+                top: 30px;
+                bottom: 0;
+                //background: white;
+                //z-index: 99;
+                transition: all ease-in-out .3s;
+                &:before {
+                    content: "";
+                    display: block;
+                    position: absolute;
+                    width: 2px;
+                    top: 30px;
+                    bottom: 10px;
+                    box-shadow: 0 0 20px black;
+                    z-index: 99;
+                    border-radius: 50%;
+                }
+            }
+            .content {
+                position: absolute;
+                background: white;
+                left: 0;
+                top: 0;
+                right: 0;
+                bottom: 0;
+            }
+        }
+        .right {
+            width: $contentwidth - $leftclosewidth;
+            left: $leftwidth;
+            background: white;
+            position: relative;
+            z-index: 999;
+            transition: all ease-in-out .3s;
+            .content {
+                position: relative;
+                z-index: 9999;
+            }
+        }
+        .mask {
+            position: fixed;
+            width: $contentwidth - $leftclosewidth;
+            margin-left: $leftclosewidth;
+            transform: translate($leftwidth - $leftclosewidth);
+            top: 0;
+            bottom: 0;
+            background: white;
+            z-index: 99;
+            transition: all ease-in-out .3s;
+            &:before {
+                content: "";
+                display: block;
+                position: absolute;
+                width: 2px;
+                top: 0px;
+                bottom: 10px;
+                box-shadow: 0 0 20px black;
+                z-index: 99;
+                border-radius: 50%;
+            }
+            &:after {
+                content: "";
+                display: block;
+                position: absolute;
+                width: 2px;
+                top: 0px;
+                bottom: 10px;
+                right: 0;
+                box-shadow: 0 0 20px black;
+                z-index: 99;
+                border-radius: 50%;
+            }
+        }
+        &.close {
+            .left {
+                top: 20px;
+                transform: rotate(-2deg);
+                opacity: .95;
+            }
+            .right {
+                left: $leftclosewidth;
+            }
+            .mask {
+                transform: translate(0);
+            }
+        }
+    }
+}
+@media only screen and (max-width: 1200px) {
+    .container{
+        width:100%;
+        .main{
+            .left{
+            }
+            .right{
+                width:100%;
+            }
+            &.close{
+                .left {
+                    top: 0px;
+                    transform: rotate(0);
+                    opacity: .95;
+                }
+                .right {
+                    left: 0;
+                }
+                .mask {
+                    transform: translate(0);
+                }
+            }
+        }
+    }
+}

@@ -1,1 +1,0 @@
-<div class="{{ data.close?'list close':'list' }}">    {{list data.list as item}}    <div class="{{ item.active?'item active':'item' }}" onclick="{{ flip(item) }}"><div class="mask"></div><a class="inner" href="{{ item.link }}"><div class="dot"><icon @id="{{ item.icon }}" class="icon"/></div><div class="name">{{ item.name }}</div></a></div>    {{/list}}</div>

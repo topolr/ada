@@ -1,0 +1,37 @@
+.sponsors {
+    margin-bottom: 20px;
+    .list {
+        .item {
+            display: inline-block;
+            vertical-align: top;
+            padding: 20px;
+            box-sizing: border-box;
+            text-decoration: none;
+            width: 150px;
+            text-align: center;
+            color:#474f6f;
+            .icon {
+                border-radius: 50%;
+                overflow: hidden;
+                height:80px;
+                width:80px;
+                display: inline-block;
+                vertical-align: top;
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-color: #f0f0f0;
+                &.bjttsx{
+                    background-image:url("./images/bjttsx.png");
+                }
+            }
+            .name {
+                line-height: 40px;
+                white-space: nowrap;
+            }
+            &:hover{
+                color:#474F6E;
+            }
+        }
+    }
+}

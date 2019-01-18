@@ -1,0 +1,64 @@
+{
+  "name": "site",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "ada-develop": {
+    "port": "80",
+    "appPath": "./app/app-develop.js"
+  },
+  "ada-publish": {
+    "appPath": "./app/app-publish.js"
+  },
+  "ada": {
+    "develop": "./app/app-develop.js",
+    "publish": "./app/app-publish.js"
+  },
+  "scripts": {
+    "ada": "node ./node_modules/.bin/adajs",
+    "packer": "./node_modules/.bin/ada-pack",
+    "parse": "node ./doc/parser/parsedocs",
+    "ssr": "node ./doc/ssr"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/topolr/ada-template.git"
+  },
+  "dependencies": {
+    "ada-uikit": "git+https://github.com/topolr/ada-uikit.git",
+    "adajs": "^3.0.0-beta.25",
+    "lodash": "^4.17.10"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-external-helpers": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-decorators": "^7.1.2",
+    "@babel/plugin-proposal-do-expressions": "^7.0.0",
+    "@babel/plugin-proposal-function-bind": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-syntax-export-extensions": "^7.0.0-beta.32",
+    "@babel/plugin-transform-async-to-generator": "^7.1.0",
+    "@babel/plugin-transform-runtime": "^7.1.0",
+    "@babel/polyfill": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-typescript": "^7.1.0",
+    "@babel/register": "^7.0.0",
+    "@babel/runtime": "^7.1.2",
+    "@babel/runtime-corejs2": "^7.1.2",
+    "ada-pack": "^3.0.0-beta.11",
+    "ada-util": "git+https://github.com/topolr/ada-util.git",
+    "autoprefixer": "^8.6.2",
+    "express": "^4.16.2",
+    "html-minifier": "^3.5.17",
+    "less": "^3.0.4",
+    "marked": "git+https://github.com/topolr/marked.git",
+    "node-sass": "^4.9.0",
+    "uglify-es": "^3.3.9",
+    "uglifycss": "0.0.29"
+  },
+  "author": "WangJinliang(hou80houzhu)",
+  "license": "MIT"
+}

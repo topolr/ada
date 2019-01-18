@@ -1,0 +1,330 @@
+.pagemenu {
+    background-color: #F6F8F8;
+    .head {
+        line-height: 50px;
+        padding: 40px 50px 40px 40px;
+        position: fixed;
+        border-bottom: 1px solid #E0E5E6;
+        background: #F6F8F8;
+        width: 905px;
+        box-sizing: border-box;
+        border-top: 5px solid #2F3240;
+        z-index: 999999999;
+        white-space: nowrap;
+        top:0;
+        .icon {
+            display: inline-block;
+            vertical-align: middle;
+            width: 1em;
+            height: 1em;
+            stroke-width: 0;
+            stroke: currentColor;
+            fill: currentColor;
+            font-size: 18px;
+        }
+        .logo {
+            transition: all ease-in-out .3s;
+            display: inline-block;
+            vertical-align: middle;
+            background-image: url("./../container/images/ada.svg");
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+            width: 0;
+            height: 0;
+            margin-right: 0;
+        }
+        .title {
+            display: inline-block;
+            vertical-align: middle;
+            .text {
+                line-height: 30px;
+                font-size: 28px;
+                font-weight: 500;
+            }
+            .desc {
+                font-size: 12px;
+                line-height: 20px;
+            }
+        }
+        .arrow {
+            position: absolute;
+            left: 10px;
+            top: 40px;
+            transition: all ease-in-out .3s;
+            .icon {
+                display: inline-block;
+                vertical-align: middle;
+                width: 1em;
+                height: 1em;
+                stroke-width: 0;
+                stroke: currentColor;
+                fill: currentColor;
+                font-size: 25px;
+            }
+        }
+        .npm {
+            position: absolute;
+            right: 45px;
+            top: 40px;
+            transition: all ease-in-out .3s;
+            color: #000;
+            background:#F6F8F8;
+            a{
+                color:#474F6E;
+                text-decoration: none;
+            }
+        }
+        .git {
+            position: absolute;
+            right: 15px;
+            top: 40px;
+            transition: all ease-in-out .3s;
+            color: #000;
+            background:#F6F8F8;
+            a{
+                color:#474F6E;
+                text-decoration: none;
+            }
+        }
+        .menu {
+            position: absolute;
+            right: 15px;
+            top: 40px;
+            transition: all ease-in-out .3s;
+            display: none;
+            .menulist {
+                display: none;
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                white-space: nowrap;
+                margin-right: -13px;
+                //margin-top: -5px;
+                border-radius: 3px;
+                box-shadow: 0 0 10px #cccccc;
+                padding: 10px 0 10px 0;
+                .menuitem {
+                    line-height: 25px;
+                    display: block;
+                    text-decoration: none;
+                    padding: 0 20px 0 20px;
+                    color: #2F323F;
+                }
+                .menusub {
+                    line-height: 25px;
+                    display: block;
+                    text-decoration: none;
+                    padding: 0 20px 0 20px;
+                    color: #2F323F;
+                    margin-left: 10px;
+                }
+                &:before {
+                    content: "";
+                    display: block;
+                    position: absolute;
+                    bottom: 100%;
+                    right: 15px;
+                    border-top: 7px solid transparent;
+                    border-left: 7px solid transparent;
+                    border-right: 7px solid transparent;
+                    border-bottom: 7px solid #eae8e8;
+                }
+                &:after {
+                    content: "";
+                    display: block;
+                    position: absolute;
+                    bottom: 100%;
+                    right: 17px;
+                    border-top: 5px solid transparent;
+                    border-left: 5px solid transparent;
+                    border-right: 5px solid transparent;
+                    border-bottom: 5px solid white;
+                }
+            }
+            &:hover {
+                .menulist {
+                    display: block;
+                }
+            }
+        }
+        &.close {
+            .logo {
+                width: 50px;
+                height: 50px;
+                margin-right: 15px;
+            }
+            .arrow {
+                transform: rotate(180deg);
+            }
+            &.scroll {
+                line-height: 40px;
+                padding: 15px 50px 15px 40px;
+                .logo {
+                    width: 40px;
+                    height: 40px;
+                    margin-right: 10px;
+                }
+            }
+        }
+        &.scroll {
+            line-height: 40px;
+            padding: 15px 50px 15px 40px;
+            .logo {
+                width: 0;
+                height: 0;
+                margin-right: 0;
+            }
+            .title {
+                .text {
+                    line-height: 40px;
+                    font-size: 22px;
+                    font-weight: 400;
+                    display: inline-block;
+                    vertical-align: middle;
+                }
+                .desc {
+                    line-height: 40px;
+                    font-size: 12px;
+                    display: inline-block;
+                    margin-left: 10px;
+                    vertical-align: middle;
+                }
+            }
+            .arrow {
+                top: 15px;
+            }
+            .npm {
+                position: absolute;
+                right: 75px;
+                top: 15px;
+                transition: all ease-in-out .3s;
+            }
+            .git {
+                position: absolute;
+                right: 45px;
+                top: 15px;
+            }
+            .menu {
+                top: 15px;
+                display: block;
+            }
+        }
+        .loader {
+            height: 1px;
+            width: 100%;
+            overflow: hidden;
+            //background-color: #E0E5E6;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        .loader:before {
+            display: block;
+            position: absolute;
+            content: "";
+            left: -200px;
+            width: 200px;
+            height: 1px;
+            background-color: #2980b9;
+            animation: loading 2s linear infinite;
+        }
+
+    }
+    .margin {
+        height: 131px;
+    }
+    .list {
+        padding: 20px 60px 20px 60px;
+        border-radius: 5px;
+        background: #fbfbfb;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #E0E5E6;
+        .item {
+            display: block;
+            line-height: 20px;
+            text-decoration: none;
+            color: #7382B7;
+            position: relative;
+            &:before {
+                content: "";
+                display: block;
+                position: absolute;
+                right: 100%;
+                width: 5px;
+                height: 5px;
+                background: #3f88dc;
+                top: 7px;
+                margin-right: 8px;
+            }
+            &:hover {
+                color: #52618a;
+            }
+        }
+        .sub {
+            display: block;
+            line-height: 20px;
+            text-decoration: none;
+            color: #7382B7;
+            &:hover {
+                color: #52618a;
+            }
+        }
+    }
+}
+
+@media only screen and (max-width: 1200px) {
+    .pagemenu {
+        .head {
+            width: 100%;
+        }
+        .list {
+            padding: 20px 50px 20px 50px;
+        }
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .pagemenu {
+        .head {
+            width: 100%;
+            &.scroll {
+                .title{
+                    .desc{
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        position: absolute;
+                        left:130px;
+                        right:95px;
+                        top:17px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@keyframes loading {
+    from {
+        left: -200px;
+        width: 30%;
+    }
+    50% {
+        width: 30%;
+    }
+    70% {
+        width: 70%;
+    }
+    80% {
+        left: 50%;
+    }
+    95% {
+        left: 120%;
+    }
+    to {
+        left: 100%;
+    }
+}
