@@ -172,9 +172,11 @@ class TransactDataSet extends DataSet {
             this[DATASETRANSACTIONSTATE].splice(0, step);
             this[DATASETRANSACTIONSTEP] = this[DATASETRANSACTIONSTATE].length;
             this[DATASETDATA] = this[DATASETRANSACTIONSTATE][0];
+            this.context.logger.group(`ROLLBACK FROM [${this[DATASETOWNER].getClassName()}]`);
             return this[DATASETOWNER]._updateForceFromDataSet().then(() => {
                 return DataSetHelper.dispatchForce(this).then(() => {
                     this[DATASETEDITS] = [];
+                    this.context.logger.groupEnd();
                     return this[DATASETDATA];
                 });
             });
@@ -188,9 +190,11 @@ class TransactDataSet extends DataSet {
         if (this[DATASETRANSACTIONSTATE].length > 0 && this[DATASETRANSACTIONSTATE][step]) {
             this[DATASETRANSACTIONSTEP] = step;
             this[DATASETDATA] = this[DATASETRANSACTIONSTATE][step];
+            this.context.logger.group(`TRAVEL FROM [${this[DATASETOWNER].getClassName()}]`);
             return this[DATASETOWNER]._updateForceFromDataSet().then(() => {
                 return DataSetHelper.dispatchForce(this).then(() => {
                     this[DATASETEDITS] = [];
+                    this.context.logger.groupEnd();
                     return this[DATASETDATA];
                 });
             });
