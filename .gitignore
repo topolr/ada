@@ -1,0 +1,6 @@
+/node_modules
+/base-dist
+/.idea
+/package-lock.json
+/npm-debug.log
+.DS_Store
