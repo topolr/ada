@@ -1,0 +1,154 @@
+.ada-hmr-controllbar {
+  position: fixed;
+  left: 10px;
+  z-index: 999999999;
+  cursor: default;
+  .ada-hmr-controllbar-box {
+    .ada-hmr-controllbar-logocon {
+      width: 30px;
+      height: 30px;
+      position: relative;
+    }
+    .ada-hmr-controllbar-logo {
+      width: 30px;
+      height: 30px;
+      color: #474F6F;
+    }
+    .ada-hmr-controllbar-logo-circle {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      animation: ada-hmr-controllbar-logo-rond 2s infinite;
+      &:after {
+        content: "";
+        display: block;
+        width: 5px;
+        height: 5px;
+        position: absolute;
+        background-color: #3D78A7;
+        border-radius: 50%;
+        top: -6px;
+        left: 6px;
+      }
+    }
+    .ada-hmr-controllbar-eyes {
+      display: flex;
+      position: absolute;
+      top: 7px;
+      left: 11px;
+      animation: ada-hmr-controllbar-logo-eyes 10s infinite;
+      .ada-hmr-controllbar-eyes-eye {
+        width: 4px;
+        height: 4px;
+        background: white;
+        border-radius: 50%;
+        margin-right: 3px;
+      }
+    }
+    .ada-hmr-controllbar-btns {
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      text-align: center;
+      display: none;
+      background: #474F6F;
+      border-radius: 12px;
+      .ada-hmr-controllbar-btn {
+        width: 24px;
+        height: 24px;
+        text-align: center;
+        font-size: 12px;
+        color: white;
+        line-height: 30px;
+        transition: all ease-out .3s;
+        .ada-hmr-controllbar-icon {
+          display: inline-block;
+          width: 1em;
+          height: 1em;
+          stroke-width: 0;
+          stroke: currentColor;
+          fill: currentColor;
+        }
+        &.ada-hmr-controllerbar-btn-play {
+          display: none;
+        }
+        &.ada-hmr-controllerbar-btn-paus {
+          display: inline-block;
+        }
+        &:hover {
+          color: #E5E5E5;
+        }
+      }
+    }
+    &:hover {
+      .ada-hmr-controllbar-btns {
+        display: flex;
+      }
+    }
+  }
+  &.ada-hmr-controllbar-stop {
+    .ada-hmr-controllbar-logo-circle {
+      &:after {
+        display: none;
+      }
+    }
+    .ada-hmr-controllbar-eyes {
+      display: none;
+      animation: none;
+    }
+    .ada-hmr-controllbar-btns {
+      .ada-hmr-controllbar-btn {
+        &.ada-hmr-controllerbar-btn-play {
+          display: inline-block;
+        }
+        &.ada-hmr-controllerbar-btn-paus {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &.ada-hmr-controllbar-action {
+    .ada-hmr-controllbar-box {
+      .ada-hmr-controllbar-logo {
+        color: #ffc66d;
+      }
+    }
+  }
+
+  @keyframes ada-hmr-controllbar-logo-rond {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes ada-hmr-controllbar-logo-eyes {
+    0% {
+      top: 7px;
+    }
+    40% {
+      top: 8px;
+      left: 11px;
+    }
+    60% {
+      top: 8px;
+      left: 12px;
+    }
+    80% {
+      top: 8px;
+      left: 11px;
+    }
+    70% {
+      top: 8px;
+      left: 12px;
+    }
+    100% {
+      top: 7px;
+      left: 11px;
+    }
+  }
+}

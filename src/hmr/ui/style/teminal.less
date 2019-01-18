@@ -1,0 +1,61 @@
+.ada-hmr-teminal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, .95);
+    z-index: 999999999;
+    font-family: 'Noto Sans SC Sliced', sans-serif;
+    .ada-hmr-teminal-head {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        padding: 0 10px 0 10px;
+        font-size: 14px;
+        color: white;
+        line-height: 40px
+    }
+    .ada-hmr-teminal-content {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 40px;
+        border-top: 1px solid #353538;
+        overflow: auto;
+        .ada-hmr-teminal-content-item {
+            padding: 0 10px 0 10px;
+            .ada-hmr-teminal-content-item-title {
+                line-height: 30px;
+                color: #ffc66d;
+                font-size: 12px;
+                border-bottom: 1px solid #545252
+            }
+            .ada-hmr-teminal-content-item-content {
+                color: #e20608;
+                font-size: 12px;
+                line-height: 14px;
+                .ada-hmr-teminal-content-item-content-inner {
+                    padding: 3px 20px 3px 0
+                }
+                .ada-hmr-teminal-content-item-content-a {
+                    width: 70px;
+                    color: #a9b7c6;
+                    text-align: right;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    float: left
+                }
+                .ada-hmr-teminal-content-item-content-b {
+                    margin-left: 80px;
+                    .ada-hmr-teminal-content-item-content-b-a {
+                        line-height: 15px;
+                    }
+                }
+            }
+        }
+    }
+}

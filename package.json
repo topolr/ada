@@ -1,0 +1,58 @@
+{
+  "name": "adajs",
+  "version": "3.0.0-beta.27",
+  "description": "Integrated Web Framework",
+  "main": "index.js",
+  "keywords": [
+    "adajs",
+    "web",
+    "ddm",
+    "framework"
+  ],
+  "scripts": {},
+  "homepage": "https://adajs.io",
+  "bin": {
+    "adajs": "./bin/cli.js"
+  },
+  "engines": {
+    "node": ">=6.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/topolr/ada.git"
+  },
+  "author": {
+    "name": "WangJinliang(hou80houzhu)",
+    "email": "hou80houzhu@vip.qq.com"
+  },
+  "bugs": {
+    "url": "https://github.com/topolr/ada/issues"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.1.0",
+    "@babel/core": "^7.1.0",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-decorators": "^7.0.0-beta.52",
+    "@babel/plugin-proposal-do-expressions": "^7.0.0",
+    "@babel/plugin-proposal-function-bind": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-syntax-export-extensions": "^7.0.0-beta.32",
+    "@babel/plugin-transform-async-to-generator": "^7.1.0",
+    "@babel/plugin-transform-runtime": "^7.1.0",
+    "@babel/polyfill": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-typescript": "^7.1.0",
+    "@babel/register": "^7.0.0",
+    "@babel/runtime": "^7.0.0",
+    "babel-plugin-dynamic-import-node": "^2.1.0"
+  },
+  "dependencies": {
+    "ada-util": "^1.0.0-beta.1",
+    "colors": "^1.3.2",
+    "download-git-repo": "^1.1.0",
+    "ora": "^2.0.0",
+    "request": "^2.88.0"
+  }
+}
