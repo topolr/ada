@@ -1,6 +1,6 @@
 let Metadata = require("./lib/metadata");
 let {DDM, MapDom} = require("./base/ddm");
-let {getDataSetFromParent, isFunction, isSubModuleChange, protectData, randomid, setProp} = require("./util/helper");
+let {getDataSetFromParent, isFunction, isPropsChange, protectData, randomid, setProp} = require("./util/helper");
 let {
     BINDERS,
     CHANGEPROPS,
@@ -403,14 +403,14 @@ class BaseView {
                     } else {
                         if (cache && props.hasOwnProperty("parameter")) {
                             this.context.logger.group(`PREDIFF CHILD[${cache.getClassName() || ''}] ID [${cache.getId()}]`);
-                            this.context.logger.log(`● CHANGE`, this._getChangedProps(), `USED`, cache._getParentUseProps());
-                            if (force || isSubModuleChange(this._getChangedProps(), cache._getParentUseProps())) {
+                            if (force || isPropsChange(this._getChangedProps(), cache._getParentUseProps())) {
+                                this.context.logger.log(!force ? `CHANGED [${cache.getClassName()}]` : `FORCE [${cache.getClassName()}]`);
                                 return cache.update(parameter).then(() => {
                                     this.context.logger.groupEnd();
                                     return cache;
                                 });
                             } else {
-                                this.context.logger.log("> NOTHING HAPPEND");
+                                this.context.logger.log(!force ? `UNCHANGED [${cache.getClassName()}]` : `FORCE [${cache.getClassName()}]`, "CHANGE", this._getChangedProps(), "USED", cache._getParentUseProps());
                                 this.context.logger.groupEnd();
                             }
                         }
@@ -587,10 +587,11 @@ class ViewConnector extends BaseView {
         let collector = new Collector({data: this.getCurrentState(), fn: this.onupdate});
         this[CONNECTSTATE] = collector.invoke(parameter, this);
         this[CHANGEPROPS] = collector.getChangedProps();
-        this.context.logger.log(`● CHANGE`, this._getChangedProps(), `USED`, this._getUsedProps());
-        if (isSubModuleChange(this._getChangedProps(), this._getUsedProps())) {
+        if (isPropsChange(this._getChangedProps(), this._getUsedProps())) {
+            this.context.logger.log(`CHANGED [${this.getClassName()}]`);
             return this._render();
         } else {
+            this.context.logger.log(`UNCHANGED [${this.getClassName()}]`, "CHANGE", this._getChangedProps(), "USED", this._getUsedProps());
             if (!this.isRendered()) {
                 return this._render();
             }
@@ -605,9 +606,11 @@ class ViewConnector extends BaseView {
         });
         this[CONNECTSTATE] = collector.invoke(data, this);
         this[CHANGEPROPS] = collector.getChangedProps();
-        this.context.logger.log(`● CHANGE`, this._getChangedProps(), `USED`, this._getUsedProps());
-        if (isSubModuleChange(this._getChangedProps(), this._getUsedProps())) {
+        if (isPropsChange(this._getChangedProps(), this._getUsedProps())) {
+            this.context.logger.log(`CHANGED [${this.getClassName()}]`);
             return this._render();
+        } else {
+            this.context.logger.log(`UNCHANGED [${this.getClassName()}]`, "CHANGE", this._getChangedProps(), "USED", this._getUsedProps());
         }
         return Promise.resolve();
     }
@@ -707,8 +710,6 @@ class View extends BaseView {
         } else {
             if (!this.isRendered()) {
                 return this._render();
-            } else {
-                this.context.logger.log("> NOTHING HAPPEND");
             }
         }
         return Promise.resolve();
@@ -716,11 +717,11 @@ class View extends BaseView {
 
     _updateFromDataSet() {
         if (this.isRendered()) {
-            this.context.logger.log(`● CHANGE`, this._getChangedProps(), `USED`, this._getUsedProps());
-            if (isSubModuleChange(this._getChangedProps(), this._getUsedProps())) {
+            if (isPropsChange(this._getChangedProps(), this._getUsedProps())) {
+                this.context.logger.log(`CHANGED [${this.getClassName()}]`);
                 return this._render();
             } else {
-                this.context.logger.log("> NOTHING HAPPEND");
+                this.context.logger.log(`UNCHANGED [${this.getClassName()}]`, "CHANGE", this._getChangedProps(), "USED", this._getUsedProps());
             }
         } else {
             return this._render();

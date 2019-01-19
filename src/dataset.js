@@ -15,7 +15,7 @@ let {
     CONTEXT
 } = require("./util/const");
 let Collector = require("./base/collector");
-let {isSubModuleChange, protectData, setProp} = require("./util/helper");
+let {isPropsChange, protectData, setProp} = require("./util/helper");
 
 class Service {
     get context() {
@@ -272,7 +272,7 @@ class DataSetHelper {
 
     static dispatch(dataset) {
         return DataSetHelper.dispatchDatasetListeners(dataset, dataset[DATASETLISTENER].filter(info => {
-            return isSubModuleChange(dataset.getChangedProps(), info.useprops);
+            return isPropsChange(dataset.getChangedProps(), info.useprops, dataset[DATASETOWNER]);
         }));
     }
 

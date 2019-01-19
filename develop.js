@@ -81,6 +81,7 @@ if (isBrowser()) {
 				console.groupEnd();
 			};
 			next(this.view(dom));
+			return "";
 		},
 		log(...paras) {
 			console.log(...paras.map(value => {
@@ -90,6 +91,7 @@ if (isBrowser()) {
 					return value;
 				}
 			}));
+			return "";
 		},
 		client,
 		recover(info) {
