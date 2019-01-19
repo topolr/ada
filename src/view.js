@@ -404,13 +404,13 @@ class BaseView {
                         if (cache && props.hasOwnProperty("parameter")) {
                             this.context.logger.group(`PREDIFF CHILD[${cache.getClassName() || ''}] ID [${cache.getId()}]`);
                             if (force || isPropsChange(this._getChangedProps(), cache._getParentUseProps())) {
-                                this.context.logger.log(!force ? `CHANGED [${cache.getClassName()}]` : `FORCE [${cache.getClassName()}]`);
+                                this.context.logger.log(!force ? `CHANGED [${cache.getClassName()}][${cache.getId() || ''}]` : `FORCE [${cache.getClassName()}]`);
                                 return cache.update(parameter).then(() => {
                                     this.context.logger.groupEnd();
                                     return cache;
                                 });
                             } else {
-                                this.context.logger.log(!force ? `UNCHANGED [${cache.getClassName()}]` : `FORCE [${cache.getClassName()}]`, "CHANGE", this._getChangedProps(), "USED", cache._getParentUseProps());
+                                this.context.logger.log(!force ? `UNCHANGED [${cache.getClassName()}][${cache.getId() || ''}]` : `FORCE [${cache.getClassName()}]`, "CHANGE", this._getChangedProps(), "USED", cache._getParentUseProps());
                                 this.context.logger.groupEnd();
                             }
                         }
@@ -588,10 +588,10 @@ class ViewConnector extends BaseView {
         this[CONNECTSTATE] = collector.invoke(parameter, this);
         this[CHANGEPROPS] = collector.getChangedProps();
         if (isPropsChange(this._getChangedProps(), this._getUsedProps())) {
-            this.context.logger.log(`CHANGED [${this.getClassName()}]`);
+            this.context.logger.log(`CHANGED [${this.getClassName()}][${this.getId() || ''}]`);
             return this._render();
         } else {
-            this.context.logger.log(`UNCHANGED [${this.getClassName()}]`, "CHANGE", this._getChangedProps(), "USED", this._getUsedProps());
+            this.context.logger.log(`UNCHANGED [${this.getClassName()}][${this.getId() || ''}]`, "CHANGE", this._getChangedProps(), "USED", this._getUsedProps());
             if (!this.isRendered()) {
                 return this._render();
             }
@@ -607,10 +607,10 @@ class ViewConnector extends BaseView {
         this[CONNECTSTATE] = collector.invoke(data, this);
         this[CHANGEPROPS] = collector.getChangedProps();
         if (isPropsChange(this._getChangedProps(), this._getUsedProps())) {
-            this.context.logger.log(`CHANGED [${this.getClassName()}]`);
+            this.context.logger.log(`CHANGED [${this.getClassName()}][${this.getId() || ''}]`);
             return this._render();
         } else {
-            this.context.logger.log(`UNCHANGED [${this.getClassName()}]`, "CHANGE", this._getChangedProps(), "USED", this._getUsedProps());
+            this.context.logger.log(`UNCHANGED [${this.getClassName()}][${this.getId() || ''}]`, "CHANGE", this._getChangedProps(), "USED", this._getUsedProps());
         }
         return Promise.resolve();
     }
@@ -718,10 +718,10 @@ class View extends BaseView {
     _updateFromDataSet() {
         if (this.isRendered()) {
             if (isPropsChange(this._getChangedProps(), this._getUsedProps())) {
-                this.context.logger.log(`CHANGED [${this.getClassName()}]`);
+                this.context.logger.log(`CHANGED [${this.getClassName()}][${this.getId() || ''}]`);
                 return this._render();
             } else {
-                this.context.logger.log(`UNCHANGED [${this.getClassName()}]`, "CHANGE", this._getChangedProps(), "USED", this._getUsedProps());
+                this.context.logger.log(`UNCHANGED [${this.getClassName()}][${this.getId() || ''}]`, "CHANGE", this._getChangedProps(), "USED", this._getUsedProps());
             }
         } else {
             return this._render();
