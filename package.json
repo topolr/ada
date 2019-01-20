@@ -1,6 +1,6 @@
 {
   "name": "adajs",
-  "version": "3.0.0-beta.28",
+  "version": "3.0.0-beta.29",
   "description": "Integrated Web Framework",
   "main": "index.js",
   "keywords": [
