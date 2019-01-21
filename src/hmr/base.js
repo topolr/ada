@@ -276,9 +276,6 @@ class ExtendModule {
 			if (!info.scope) {
 				info.scope = "local";
 			}
-			if (info.precise === undefined) {
-				info.precise = 3;
-			}
 			let ps = Promise.resolve();
 			if (info.template) {
 				ps = ps.then(() => context.loader.loadSource(info.template).then(code => {
@@ -301,7 +298,6 @@ class ExtendModule {
 						tags: view._getTags()
 					},
 					macro: view._macros(),
-					precise: view[VIEWINFO].precise,
 					className: info.className || "",
 					context
 				}));

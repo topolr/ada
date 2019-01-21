@@ -1,7 +1,7 @@
 let eventHelper = require("../lib/event");
 let Collector = require("./collector");
 let {encodeHTML, isFunction, isPlainObject, randomid} = require("../util/helper");
-let {PROXYSTATE} = require("./../util/const");
+let {PROXYSTATE, VIEWTAG} = require("./../util/const");
 
 const REGS = {
 	k: /\r/g,
@@ -1272,7 +1272,7 @@ class MapDom {
 }
 
 class Template {
-	constructor(context, template = "", macro = {}, id, option = {}, precise = 3) {
+	constructor(context, template = "", macro = {}, id, option = {}) {
 		this._id = id;
 		this._currentState = null;
 		this._beforeState = null;
@@ -1281,31 +1281,30 @@ class Template {
 		this._code = Parser.parse(context, template, option ? option.tags || {} : {});
 		this._option = option;
 		this._useprops = [];
-		this._precise = precise;
 		this._context = context;
 	}
 
 	_macro({tag: methodName, bodyStr, props, events, attrs, uses, usesmap}) {
 		if (this._macrofn[methodName]) {
-			let useProps = new Set();
+			let useProps = [];
 			if (props.parameter) {
 				let proxy = props.parameter[PROXYSTATE];
 				if (proxy) {
 					if (proxy._parent) {
-						useProps.add(proxy._prop);
+						useProps.push(proxy._prop);
 					}
 				} else {
 					if (Array.isArray(proxy)) {
 						proxy.forEach(item => {
 							if (item[PROXYSTATE] && item[PROXYSTATE]._parent) {
-								useProps.add(item[PROXYSTATE]._prop);
+								useProps.push(item[PROXYSTATE]._prop);
 							}
 						});
 					} else if (isPlainObject(proxy)) {
 						Reflect.ownKeys(proxy).forEach(key => {
 							let item = proxy[key];
 							if (item[PROXYSTATE] && item[PROXYSTATE]._parent) {
-								useProps.add(item[PROXYSTATE]._prop);
+								useProps.push(item[PROXYSTATE]._prop);
 							}
 						});
 					}
@@ -1314,15 +1313,15 @@ class Template {
 			uses.map(key => {
 				let item = usesmap[key];
 				if (item && item[PROXYSTATE] && item[PROXYSTATE]._prop) {
-					useProps.add(item[PROXYSTATE]._prop);
+					useProps.push(item[PROXYSTATE]._prop);
 				} else {
 					let n = key.split("."), m = n.pop(), t = n.join("."), f = usesmap[t];
 					if (f && f[PROXYSTATE]) {
-						useProps.add(f[PROXYSTATE]._prop + "." + m);
+						useProps.push(f[PROXYSTATE]._prop + "." + m);
 					}
 				}
 			});
-			props.useProps = [...useProps];
+			props.useProps = useProps;
 			let result = this._macrofn[methodName]({
 				attrs,
 				events,
@@ -1406,7 +1405,7 @@ class Template {
 		if (this._currentState) {
 			this._beforeState = this._currentState;
 		}
-		let collector = new Collector({data, fn: this.getCurrentState, precise: this._precise, freeze: false});
+		let collector = new Collector({data, fn: this.getCurrentState, freeze: false});
 		this._currentState = collector.invoke({}, this);
 		this._useprops = collector.getUsedPros();
 		if (isdiff) {
@@ -1420,17 +1419,35 @@ class Template {
 		}
 	}
 
+	renderStatic(data = {}, isdiff = true) {
+		if (this._currentState) {
+			this._beforeState = this._currentState;
+		}
+		let collector = new Collector({data, fn: this.getCurrentState, freeze: false});
+		this._currentState = collector.invoke({}, this);
+		this._useprops = collector.getUsedPros();
+		if (isdiff) {
+			if (!this._beforeState) {
+				return Parser.getHTMLString(this._context, this._currentState);
+			} else {
+				return null;
+			}
+		} else {
+			return Parser.getHTMLString(this._context, this._currentState);
+		}
+	}
+
 	isRendered() {
 		return !this._templateStr || this._beforeState != null;
 	}
 }
 
 class DDM {
-	constructor({id, container = null, templateStr = "", binders = {}, macro = {}, option = {}, precise = 3, context = null, className}) {
+	constructor({id, container = null, templateStr = "", binders = {}, macro = {}, option = {}, context = null, className}) {
 		this._context = context;
 		this._id = id;
 		this._container = container;
-		this._cross = new Template(context, templateStr, macro, id, option, precise);
+		this._cross = new Template(context, templateStr, macro, id, option);
 		this._binders = binders;
 		this._isrender = false;
 		this._className = className || "";
@@ -1548,8 +1565,41 @@ class DDM {
 		return this;
 	}
 
-	getUseProps() {
+	renderStatic(data, isdiff = true) {
+		let result = this._cross.renderStatic(data, isdiff);
+		if (isdiff) {
+			if (!this._cross.isRendered()) {
+				if (result) {
+					(!this._container.innerHTML) && (this._container.innerHTML = result);
+				}
+			}
+		} else {
+			if (result) {
+				(!this._container.innerHTML) && (this._container.innerHTML = result);
+			}
+		}
+		this._agentEvent(this._cross.getCurrentEventMap());
+		this._isrender = true;
+		return this;
+	}
+
+	getUseProps(withDom = false) {
 		return this._cross._useprops
+	}
+
+	getDOMUseProps() {
+		let moduleUseProps = [];
+		this.modules().filter(module => {
+			return !module.getElement()[VIEWTAG].isRemoved()
+		}).forEach(module => {
+			moduleUseProps = moduleUseProps.concat(module.getElement()[VIEWTAG]._getParentUseProps());
+		});
+		let k = this._cross._useprops.join("|");
+		moduleUseProps.forEach(prop => {
+			k = k.replace(prop, "");
+		});
+		let r = k.split("|").filter(a => a !== "");
+		return r;
 	}
 
 	isRendered() {

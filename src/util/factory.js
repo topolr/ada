@@ -23,9 +23,6 @@ let factory = {
 		if (!info.scope) {
 			info.scope = "local";
 		}
-		if (info.precise === undefined) {
-			info.precise = 6;
-		}
 		let ps = Promise.resolve();
 		if (info.template) {
 			ps = ps.then(() => context.loader.loadSource(info.template).then(code => {

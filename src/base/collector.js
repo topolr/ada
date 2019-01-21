@@ -95,8 +95,8 @@ const util = {
 	},
 	cleanCollector(collector) {
 		collector._revokes.forEach(i => i());
-		collector._getprops = [...collector._getprops];
-		collector._setprops = [...collector._setprops];
+		// collector._getprops = [...collector._getprops];
+		// collector._setprops = [...collector._setprops];
 		if (collector._states.length > 0) {
 			this.each(collector._states, (_, state) => {
 				state.finalizing = true
@@ -290,7 +290,6 @@ const handler = {
 		}
 		if (!target._modified) {
 			if (prop in target._data && util.is(target._data[prop], value) || util.has(target._children, prop) && target._children[prop] === value) {
-				target._collector._removeSetProp(target._prop + "." + prop);
 				return true;
 			}
 			if (target._collector._immutable) {
@@ -316,7 +315,7 @@ const handler = {
 	getOwnPropertyDescriptor(target, prop) {
 		const owner = target._modified ? target._copy : util.has(target._children, prop) ? target._children : target._data;
 		const descriptor = Reflect.getOwnPropertyDescriptor(owner, prop);
-		if(descriptor) {
+		if (descriptor) {
 			descriptor.configurable = true;
 		}
 		return descriptor;
@@ -355,7 +354,6 @@ const eshandler = {
 		}
 		if (!state._modified) {
 			if (util.is(esprop.source(state)[prop], value)) {
-				state._collector._removeSetProp(state._prop + "." + prop);
 				return;
 			}
 			esprop.markChanged(state);
@@ -370,14 +368,13 @@ const eshandler = {
 };
 
 class Collector {
-	constructor({data, fn, precise = 3, immutable = true, collect = true}) {
+	constructor({data, fn, immutable = true, collect = true}) {
 		this.fn = fn;
 		this._revokes = [];
 		this._states = [];
-		this._precise = precise + 1;
 		this._root = issupportproxy ? proxy.createProxy(this, null, data) : esprop.createProxy(this, null, data);
-		this._getprops = new Set();
-		this._setprops = new Set();
+		this._getprops = [];
+		this._setprops = [];
 		this._immutable = immutable;
 		this._collect = collect;
 	}
@@ -431,19 +428,13 @@ class Collector {
 
 	_addUseProp(prop) {
 		if (this._collect) {
-			this._getprops.add(prop.split(".").splice(0, this._precise).join("."));
+			this._getprops.push(prop);
 		}
 	}
 
 	_addSetProp(prop) {
 		if (this._collect) {
-			this._setprops.add(prop);
-		}
-	}
-
-	_removeSetProp(prop) {
-		if (this._collect) {
-			this._setprops.delete(prop);
+			this._setprops.push(prop);
 		}
 	}
 }
