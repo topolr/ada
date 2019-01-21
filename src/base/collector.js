@@ -95,6 +95,7 @@ const util = {
 	},
 	cleanCollector(collector) {
 		collector._revokes.forEach(i => i());
+		collector._setprops = [...collector._setprops];
 		if (collector._states.length > 0) {
 			this.each(collector._states, (_, state) => {
 				state.finalizing = true
@@ -284,7 +285,9 @@ const handler = {
 	},
 	set(target, prop, value) {
 		if (target._data[prop] !== value) {
-			target._collector._addSetProp(target._prop + "." + prop)
+			target._collector._addSetProp(target._prop + "." + prop);
+		} else {
+			target._collector._removeSetProp(target._prop + "." + prop);
 		}
 		if (!target._modified) {
 			if (prop in target._data && util.is(target._data[prop], value) || util.has(target._children, prop) && target._children[prop] === value) {
@@ -349,9 +352,12 @@ const eshandler = {
 		}
 		if (state._data[prop] !== value) {
 			state._collector._addSetProp(state._prop + "." + prop)
+		} else {
+			target._collector._removeSetProp(target._prop + "." + prop);
 		}
 		if (!state._modified) {
 			if (util.is(esprop.source(state)[prop], value)) {
+				state._collector._removeSetProp(state._prop + "." + prop);
 				return;
 			}
 			esprop.markChanged(state);
@@ -372,7 +378,7 @@ class Collector {
 		this._states = [];
 		this._root = issupportproxy ? proxy.createProxy(this, null, data) : esprop.createProxy(this, null, data);
 		this._getprops = [];
-		this._setprops = [];
+		this._setprops = new Set();
 		this._immutable = immutable;
 		this._collect = collect;
 	}
@@ -432,7 +438,13 @@ class Collector {
 
 	_addSetProp(prop) {
 		if (this._collect) {
-			this._setprops.push(prop);
+			this._setprops.add(prop);
+		}
+	}
+
+	_removeSetProp(prop) {
+		if (this._collect) {
+			this._setprops.delete(prop);
 		}
 	}
 }
