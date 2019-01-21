@@ -1,6 +1,6 @@
 let eventHelper = require("../lib/event");
 let Collector = require("./collector");
-let {encodeHTML, isFunction, isPlainObject, randomid} = require("../util/helper");
+let {encodeHTML, isFunction, isPlainObject, randomid, isString} = require("../util/helper");
 let {PROXYSTATE, VIEWTAG} = require("./../util/const");
 
 const REGS = {
@@ -1275,13 +1275,13 @@ class Template {
 	constructor(context, template = "", macro = {}, id, option = {}) {
 		this._id = id;
 		this._currentState = null;
-		this._beforeState = null;
 		this._macrofn = Object.assign({}, context.ddm.defaultMacros, macro);
 		this._templateStr = template;
 		this._code = Parser.parse(context, template, option ? option.tags || {} : {});
 		this._option = option;
 		this._useprops = [];
 		this._context = context;
+		this._isRendered = false;
 	}
 
 	_macro({tag: methodName, bodyStr, props, events, attrs, uses, usesmap}) {
@@ -1402,15 +1402,17 @@ class Template {
 	}
 
 	render(data = {}, isdiff = true) {
+		let _beforeState = null;
 		if (this._currentState) {
-			this._beforeState = this._currentState;
+			_beforeState = this._currentState;
 		}
 		let collector = new Collector({data, fn: this.getCurrentState, freeze: false});
 		this._currentState = collector.invoke({}, this);
 		this._useprops = collector.getUsedPros();
+		this._isRendered = true;
 		if (isdiff) {
-			if (this._beforeState) {
-				return Differ.diff(this._currentState, this._beforeState);
+			if (_beforeState) {
+				return Differ.diff(this._currentState, _beforeState);
 			} else {
 				return Parser.getHTMLString(this._context, this._currentState);
 			}
@@ -1420,14 +1422,16 @@ class Template {
 	}
 
 	renderStatic(data = {}, isdiff = true) {
+		let _beforeState = null;
 		if (this._currentState) {
-			this._beforeState = this._currentState;
+			_beforeState = this._currentState;
 		}
 		let collector = new Collector({data, fn: this.getCurrentState, freeze: false});
 		this._currentState = collector.invoke({}, this);
 		this._useprops = collector.getUsedPros();
+		this._isRendered = true;
 		if (isdiff) {
-			if (!this._beforeState) {
+			if (!_beforeState) {
 				return Parser.getHTMLString(this._context, this._currentState);
 			} else {
 				return null;
@@ -1438,7 +1442,7 @@ class Template {
 	}
 
 	isRendered() {
-		return !this._templateStr || this._beforeState != null;
+		return !this._templateStr || this._isRendered;
 	}
 }
 
@@ -1545,20 +1549,11 @@ class DDM {
 
 	render(data, isdiff = true) {
 		let result = this._cross.render(data, isdiff);
-		if (isdiff) {
-			if (!this._cross.isRendered()) {
-				if (result) {
-					(!this._container.innerHTML) && (this._container.innerHTML = result);
-				}
-			} else {
-				if (result) {
-					Effecter.effect(this._context, this._container, result);
-				}
+		if (result) {
+			if (isdiff && !isString(result)) {
+				Effecter.effect(this._context, this._container, result);
 			}
-		} else {
-			if (result) {
-				(!this._container.innerHTML) && (this._container.innerHTML = result);
-			}
+			(!this._container.innerHTML) && (this._container.innerHTML = result);
 		}
 		this._agentEvent(this._cross.getCurrentEventMap());
 		this._isrender = true;
@@ -1567,14 +1562,8 @@ class DDM {
 
 	renderStatic(data, isdiff = true) {
 		let result = this._cross.renderStatic(data, isdiff);
-		if (isdiff) {
-			if (!this._cross.isRendered()) {
-				if (result) {
-					(!this._container.innerHTML) && (this._container.innerHTML = result);
-				}
-			}
-		} else {
-			if (result) {
+		if (result) {
+			if (!isdiff || isString(result)) {
 				(!this._container.innerHTML) && (this._container.innerHTML = result);
 			}
 		}
@@ -1583,7 +1572,7 @@ class DDM {
 		return this;
 	}
 
-	getUseProps(withDom = false) {
+	getUseProps() {
 		return this._cross._useprops
 	}
 
@@ -1598,8 +1587,7 @@ class DDM {
 		moduleUseProps.forEach(prop => {
 			k = k.replace(prop, "");
 		});
-		let r = k.split("|").filter(a => a !== "");
-		return r;
+		return k.split("|").filter(a => a !== "");
 	}
 
 	isRendered() {
