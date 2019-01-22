@@ -31,7 +31,9 @@ const REGS = {
     customB: /<[0-9a-z_-]+?>/,
     customC: /<[0-9a-z_-]+ .*?>/,
     customD: /<\/[0-9a-z_-]+?>/,
-    customE: /<[0-9a-z_-]+\/?>/
+    customE: /<[0-9a-z_-]+\/?>/,
+    macro: /this\._macro\(\{[\s\S]+?\}\);/g,
+    macroTag: /tag:"[\s\S]+?"/
 };
 const SINGLETAG = ["br", "hr", "img", "input", "param", "link", "meta", "area", "base", "basefont", "param", "col", "frame", "embed", "keygen", "source"];
 const TEMPLATECACHE = new Map();
@@ -1280,8 +1282,10 @@ class Template {
         this._code = Parser.parse(context, template, option ? option.tags || {} : {});
         this._option = option;
         this._useprops = [];
+        this._usepureprops = [];
         this._context = context;
         this._isRendered = false;
+        this._macroCollector = [];
     }
 
     _macro({tag: methodName, bodyStr, props, events, attrs, uses, usesmap}) {
@@ -1351,6 +1355,9 @@ class Template {
                     Object.assign(_out.props, props);
                     Object.assign(_out.events, events);
                     Object.assign(_out.attrs, attrs);
+                    if (_out.attrs["data-module"]) {
+                        this._macroCollector.push(methodName);
+                    }
                     return [_out];
                 } else {
                     throw new Error("[ada] macro must return only one node");
@@ -1399,6 +1406,32 @@ class Template {
         return new Function(...paras).call(this, ..._paras);
     }
 
+    getCurrentStateWithoutMacros(data) {
+        let code = this._code.replace(REGS.macro, str => {
+            let k = str.match(REGS.macroTag);
+            if (k) {
+                let name = k[0].substring(5, k[0].length - 1);
+                if (this._macroCollector.indexOf(name) !== -1) {
+                    return "'';";
+                }
+            }
+            return str;
+        });
+        let paras = [IDNAME, "data", ...this._context.ddm.defaultFunctionNames, code];
+        let _paras = [this._id, data, ...this._context.ddm.defaultFunctionFns];
+        return new Function(...paras).call(this, ..._paras);
+    }
+
+    _getPureUseprops(data) {
+        if (this._macroCollector.length > 0) {
+            let collectorc = new Collector({data, fn: this.getCurrentStateWithoutMacros, freeze: false});
+            collectorc.invoke({}, this);
+            return collectorc.getUsedPros();
+        } else {
+            return this._useprops;
+        }
+    }
+
     render(data = {}, isdiff = true) {
         let _beforeState = null;
         if (this._currentState) {
@@ -1407,6 +1440,7 @@ class Template {
         let collector = new Collector({data, fn: this.getCurrentState, freeze: false});
         this._currentState = collector.invoke({}, this);
         this._useprops = collector.getUsedPros();
+        this._usepureprops = this._getPureUseprops(data);
         this._isRendered = true;
         if (isdiff) {
             if (_beforeState) {
@@ -1417,6 +1451,12 @@ class Template {
         } else {
             return Parser.getHTMLString(this._context, this._currentState);
         }
+    }
+
+    resetState(data) {
+        let collector = new Collector({data, fn: this.getCurrentState, freeze: false});
+        this._currentState = collector.invoke({}, this);
+        this._useprops = collector.getUsedPros();
     }
 
     isRendered() {
@@ -1538,22 +1578,16 @@ class DDM {
         return this;
     }
 
+    resetState(data) {
+        this._cross.resetState(data);
+    }
+
     getUseProps() {
         return this._cross._useprops
     }
 
-    getDOMUseProps() {
-        let moduleUseProps = [];
-        this.modules().filter(module => {
-            return !module.getElement()[VIEWTAG].isRemoved()
-        }).forEach(module => {
-            moduleUseProps = moduleUseProps.concat(module.getElement()[VIEWTAG]._getParentUseProps());
-        });
-        let k = this._cross._useprops.join("|");
-        moduleUseProps.forEach(prop => {
-            k = k.replace(prop, "");
-        });
-        return k.split("|").filter(a => a !== "");
+    getPureUseProps() {
+        return this._cross._usepureprops;
     }
 
     isRendered() {
