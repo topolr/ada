@@ -615,13 +615,8 @@ class ViewConnector extends BaseView {
 	}
 
 	_render(force) {
-		if (force || isPropsChangeEqual(this._getChangedProps(), this.getDDM().getDOMUseProps())) {
-			this.context.logger.log(`> RENDER[${this.getClassName()}] [ CONNECTOR ] TYPE [ ${force ? 'FORCE' : 'AUTO'} ] METHOD [${this.getDDM().isRendered() ? 'DIFF' : 'INIT'}]`);
-			this.getDDM().render(this.getCurrentState());
-		} else {
-			this.context.logger.log(`> RENDER[${this.getClassName()}] [ CONNECTOR ] TYPE [ ${force ? 'FORCE' : 'AUTO'} ] METHOD [${this.getDDM().isRendered() ? 'STATIC' : 'INIT'}]`);
-			this.getDDM().renderStatic(this.getCurrentState());
-		}
+		this.context.logger.log(`> RENDER[${this.getClassName()}] [ CONNECTOR ] TYPE [ ${force ? 'FORCE' : 'AUTO'} ] METHOD [${this.getDDM().isRendered() ? 'DIFF' : 'INIT'}]`);
+		this.getDDM().render(this.getCurrentState());
 		return this._refresh(force);
 	}
 
@@ -843,13 +838,8 @@ class ViewGroup extends View {
 	}
 
 	_render(force = false) {
-		if (force || isPropsChangeEqual(this._getChangedProps(), this.getDDM().getDOMUseProps())) {
-			this.context.logger.log(`> RENDER[${this.getClassName()}] TYPE [ ${force ? 'FORCE' : 'AUTO'} ] METHOD [${this.getDDM().isRendered() ? 'DIFF' : 'INIT'}]`);
-			this.getDDM().render(this.getCurrentState());
-		} else {
-			this.context.logger.log(`> RENDER[${this.getClassName()}] TYPE [ ${force ? 'FORCE' : 'AUTO'} ] METHOD [${this.getDDM().isRendered() ? 'STATIC' : 'INIT'}]`);
-			this.getDDM().renderStatic(this.getCurrentState());
-		}
+		this.context.logger.log(`> RENDER[${this.getClassName()}] TYPE [ ${force ? 'FORCE' : 'AUTO'} ] METHOD [${this.getDDM().isRendered() ? 'DIFF' : 'INIT'}]`);
+		this.getDDM().render(this.getCurrentState());
 		return this._refresh(force);
 	}
 

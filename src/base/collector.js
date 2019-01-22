@@ -95,6 +95,7 @@ const util = {
 	},
 	cleanCollector(collector) {
 		collector._revokes.forEach(i => i());
+		collector._getprops = [...collector._getprops];
 		collector._setprops = [...collector._setprops];
 		if (collector._states.length > 0) {
 			this.each(collector._states, (_, state) => {
@@ -377,7 +378,7 @@ class Collector {
 		this._revokes = [];
 		this._states = [];
 		this._root = issupportproxy ? proxy.createProxy(this, null, data) : esprop.createProxy(this, null, data);
-		this._getprops = [];
+		this._getprops = new Set();
 		this._setprops = new Set();
 		this._immutable = immutable;
 		this._collect = collect;
@@ -432,7 +433,7 @@ class Collector {
 
 	_addUseProp(prop) {
 		if (this._collect) {
-			this._getprops.push(prop);
+			this._getprops.add(prop);
 		}
 	}
 
