@@ -1625,7 +1625,11 @@ class DDM {
 	}
 
 	resetState(data) {
-		this._cross.resetState(data);
+		if (this.isRendered()) {
+			this._cross.resetState(data);
+		} else {
+			this.render();
+		}
 	}
 
 	getUseProps() {
