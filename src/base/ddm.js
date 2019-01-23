@@ -92,13 +92,13 @@ let Parser = {
 				return "<%}%>";
 			},
 			"if"(str, index) {
-				return `<%if(${str.join(" ")}){_coverage(${index});%>`;
+				return `<%if(${str.join(" ")}){%>`;
 			},
 			"elseif"(str, index) {
-				return `<%}else if(${str.join(" ")}){_coverage(${index});%>`;
+				return `<%}else if(${str.join(" ")}){%>`;
 			},
 			"else"(str, index) {
-				return `<%}else{_coverage(${index});%>`;
+				return `<%}else{%>`;
 			},
 			"/if"() {
 				return "<%}%>";
@@ -111,17 +111,15 @@ let Parser = {
 			}
 		},
 		parse(strs = "") {
-			let index = -1;
 			return strs.replace(REGS.syntaxs, (str) => {
-				index++;
 				let a = str.substring(2, str.length - 2),
 					b = a.split(" "),
 					c = b.shift();
 				try {
 					if (Parser.beautySyntax.syntaxs[c]) {
-						return Parser.beautySyntax.syntaxs[c](b, index);
+						return Parser.beautySyntax.syntaxs[c](b);
 					} else {
-						return Parser.beautySyntax.syntaxs.defaults(str, index);
+						return Parser.beautySyntax.syntaxs.defaults(str);
 					}
 				} catch (e) {
 					console.log(e);
@@ -755,18 +753,11 @@ let Parser = {
 	},
 	parse(context, temp = "", tags = {}) {
 		let result = "";
-		if (!TemplateCache.has(temp)) {
-			let t = temp.match(REGS.syntaxs), coverage = [];
-			if (t) {
-				[...t].forEach((str, index) => {
-					let a = str.substring(2, str.length - 2), b = a.split(" "), c = b.shift();
-					["if", "elseif", "else"].indexOf(c) !== -1 && coverage.push(index);
-				});
-			}
+		if (!TEMPLATECACHE.has(temp)) {
 			result = Parser.code(Parser.parseMacro(Parser.beautySyntax.parse(Parser.preparse(context, temp, tags))));
-			TemplateCache.set(temp, {code: result, coverage, usePureProps: null});
+			TEMPLATECACHE.set(temp, result);
 		}
-		return TemplateCache.get(temp);
+		return TEMPLATECACHE.get(temp);
 	}
 };
 let Differ = {
@@ -1301,20 +1292,14 @@ class Template {
 		this._currentState = null;
 		this._macrofn = Object.assign({}, context.ddm.defaultMacros, macro);
 		this._templateStr = template;
-		let {code, coverage, usePureProps} = Parser.parse(context, template, option ? option.tags || {} : {});
-		this._code = code;
+		this._code = Parser.parse(context, template, option ? option.tags || {} : {});
 		this._option = option;
-		this._useprops = [];
 		this._context = context;
 		this._isRendered = false;
-		this._macroCollector = [];
-		if (!usePureProps) {
-			this._coverage = coverage;
-			this._usepureprops = [];
-		} else {
-			this._coverage = [];
-			this._usepureprops = usePureProps;
-		}
+		this._useprops = [];
+		this._usepureprops = [];
+		this._macroCollector = {};
+		this._pureCode = "";
 	}
 
 	_macro({tag: methodName, bodyStr, props, events, attrs, uses, usesmap}) {
@@ -1385,7 +1370,7 @@ class Template {
 					Object.assign(_out.events, events);
 					Object.assign(_out.attrs, attrs);
 					if (_out.attrs["data-module"]) {
-						this._macroCollector.push(methodName);
+						this._macroCollector[methodName] = "";
 					}
 					return [_out];
 				} else {
@@ -1430,39 +1415,29 @@ class Template {
 	}
 
 	getCurrentState(data) {
-		let paras = [IDNAME, "data", ...this._context.ddm.defaultFunctionNames, "_coverage", this._code];
-		let _paras = [this._id, data, ...this._context.ddm.defaultFunctionFns, (index) => {
-			this._coverage.splice(this._coverage.indexOf(index), 1);
-		}];
+		let paras = [IDNAME, "data", ...this._context.ddm.defaultFunctionNames, this._code];
+		let _paras = [this._id, data, ...this._context.ddm.defaultFunctionFns];
 		return new Function(...paras).call(this, ..._paras);
 	}
 
 	getCurrentStateWithoutMacros(data) {
-		let code = this._code.replace(REGS.macro, str => {
-			let k = str.match(REGS.macroTag);
-			if (k) {
-				let name = k[0].substring(5, k[0].length - 1);
-				if (this._macroCollector.indexOf(name) !== -1) {
-					return "'';";
+		let targets = Reflect.ownKeys(this._macroCollector).filter(key => this._macroCollector[key] !== "");
+		if (targets.length > 0) {
+			targets.forEach(key => this._macroCollector[key] = true);
+			this._pureCode = this._code.replace(REGS.macro, str => {
+				let k = str.match(REGS.macroTag);
+				if (k) {
+					let name = k[0].substring(5, k[0].length - 1);
+					if (targets.indexOf(name) !== -1) {
+						return "'';";
+					}
 				}
-			}
-			return str;
-		});
-		let paras = [IDNAME, "data", ...this._context.ddm.defaultFunctionNames, "_coverage", code];
-		let _paras = [this._id, data, ...this._context.ddm.defaultFunctionFns, () => {
-		}];
-		return new Function(...paras).call(this, ..._paras);
-	}
-
-	_getPureUseprops(data) {
-		if (this._macroCollector.length > 0) {
-			console.log('===>coverage<===', this._coverage);
-			let collectorc = new Collector({data, fn: this.getCurrentStateWithoutMacros, freeze: false});
-			collectorc.invoke({}, this);
-			return collectorc.getUsedPros();
-		} else {
-			return this._useprops;
+				return str;
+			});
 		}
+		let paras = [IDNAME, "data", ...this._context.ddm.defaultFunctionNames, this._pureCode];
+		let _paras = [this._id, data, ...this._context.ddm.defaultFunctionFns];
+		return new Function(...paras).call(this, ..._paras);
 	}
 
 	render(data = {}, isdiff = true) {
@@ -1470,23 +1445,18 @@ class Template {
 		if (this._currentState) {
 			_beforeState = this._currentState;
 		}
-		let beforeCoverageCount = this._coverage.length;
 		let collector = new Collector({data, fn: this.getCurrentState, freeze: false});
 		this._currentState = collector.invoke({}, this);
 		this._useprops = collector.getUsedPros();
-		if (beforeCoverageCount !== 0 && beforeCoverageCount !== this._coverage.length) {
-			this._getPureUseprops(data).forEach(key => {
-				if (this._usepureprops.indexOf(key) === -1) {
-					this._usepureprops.push(key);
-				}
-			});
-			if (this._coverage.length === 0) {
-				console.log('=====>coverage done<=====');
-				TemplateCache.set(this._templateStr, {
-					usePureProps: this._usepureprops
-				});
-			}
+
+		if (this._macroCollector.length > 0) {
+			let collectorc = new Collector({data, fn: this.getCurrentStateWithoutMacros, freeze: false});
+			collectorc.invoke({}, this);
+			this._usepureprops = collectorc.getUsedPros();
+		} else {
+			this._usepureprops = this._useprops;
 		}
+
 		this._isRendered = true;
 		if (isdiff) {
 			if (_beforeState) {
