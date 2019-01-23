@@ -384,7 +384,7 @@ class Collector {
 		this._collect = collect;
 	}
 
-	getUsedPros() {
+	getUsedProps() {
 		return this._getprops;
 	}
 

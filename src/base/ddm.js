@@ -1415,6 +1415,10 @@ class Template {
 		return TemplateCache.get(this._key).template;
 	}
 
+	getTemplateInfo() {
+		return TemplateCache.get(this._key);
+	}
+
 	getAttributeByPath(path = []) {
 		let node = {children: this._currentState};
 		path.forEach((p) => node = node.children[p]);
@@ -1461,12 +1465,12 @@ class Template {
 		}
 		let collector = new Collector({data, fn: this.getCurrentState, freeze: false});
 		this._currentState = collector.invoke({}, this);
-		this._useprops = collector.getUsedPros();
+		this._useprops = collector.getUsedProps();
 
 		if (TemplateCache.get(this._key).pureFn) {
 			let collectorc = new Collector({data, fn: this.getCurrentStateWithoutMacros, freeze: false});
 			collectorc.invoke({}, this);
-			this._usepureprops = collectorc.getUsedPros();
+			this._usepureprops = collectorc.getUsedProps();
 		} else {
 			this._usepureprops = this._useprops;
 		}
@@ -1486,7 +1490,7 @@ class Template {
 	resetState(data) {
 		let collector = new Collector({data, fn: this.getCurrentState, freeze: false});
 		this._currentState = collector.invoke({}, this);
-		this._useprops = collector.getUsedPros();
+		this._useprops = collector.getUsedProps();
 	}
 
 	isRendered() {

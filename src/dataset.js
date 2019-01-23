@@ -102,7 +102,7 @@ class DataSet {
 			result = collector.invoke();
 			setTimeout(() => {
 				this[DATASETLISTENER].push({
-					useprops: collector.getUsedPros(),
+					useprops: collector.getUsedProps(),
 					view,
 					getter,
 					setter
@@ -289,7 +289,7 @@ class DataSetHelper {
 						fn: b.getter
 					});
 					let result = collector.invoke();
-					b.useprops = collector.getUsedPros();
+					b.useprops = collector.getUsedProps();
 					return b.view._updateFromConnect({data: result, setter: b.setter});
 				} else {
 					return Promise.resolve();
