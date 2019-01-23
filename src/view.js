@@ -384,7 +384,7 @@ class BaseView {
 								context: this.context
 							}).then(_view => {
 								if (!_view.isRemoved()) {
-									this.context.logger.group(`CREATE CHILD[${_view.getClassName() || ''}] ID [${_view.getId()}]`);
+									this.context.logger.group(`CREATE CHILD[${_view.getClassName() || ''}]`);
 									return Promise.resolve().then(() => _view.oncreated()).then(() => {
 										return _view.update(parameter).then(() => {
 											if (this.onchildadded) {
@@ -401,15 +401,15 @@ class BaseView {
 						return ps;
 					} else {
 						if (cache && props.hasOwnProperty("parameter")) {
-							this.context.logger.group(`PREDIFF CHILD[${cache.getClassName() || ''}] ID [${cache.getId()}]`);
+							this.context.logger.group(`PREDIFF CHILD[${cache.getClassName() || ''}]`);
 							if (force || isPropsChange(this._getChangedProps(), cache._getParentUseProps())) {
-								this.context.logger.log(!force ? `CHANGED[${cache.getClassName()}][${cache.getId() || ''}]` : `FORCE [${cache.getClassName()}]`, "CHANGE", this._getChangedProps());
+								this.context.logger.log(!force ? `CHANGED[${cache.getClassName()}]` : `FORCE [${cache.getClassName()}]`, "|", this._getChangedProps(), "|", cache._getParentUseProps());
 								return cache.update(parameter).then(() => {
 									this.context.logger.groupEnd();
 									return cache;
 								});
 							} else {
-								this.context.logger.log(!force ? `UNCHANGED[${cache.getClassName()}][${cache.getId() || ''}]` : `FORCE [${cache.getClassName()}]`, "CHANGE", this._getChangedProps(), "USED", cache._getParentUseProps());
+								this.context.logger.log(!force ? `UNCHANGED[${cache.getClassName()}]` : `FORCE [${cache.getClassName()}]`, "|", this._getChangedProps(), "|", cache._getParentUseProps());
 								this.context.logger.groupEnd();
 							}
 						}
@@ -606,20 +606,20 @@ class ViewConnector extends BaseView {
 		this[CONNECTSTATE] = collector.invoke(data, this);
 		this[CHANGEPROPS] = collector.getChangedProps();
 		if (isPropsChange(this._getChangedProps(), this._getUsedProps())) {
-			this.context.logger.log(`CHANGED[${this.getClassName()}][${this.getId() || ''}]`, "CHANGE", this._getChangedProps());
+			this.context.logger.log(`CHANGED[${this.getClassName()}]`, "|", this._getChangedProps(), "|", this._getUsedProps());
 			return this._render();
 		} else {
-			this.context.logger.log(`UNCHANGED[${this.getClassName()}][${this.getId() || ''}]`, "CHANGE", this._getChangedProps(), "USED", this._getUsedProps());
+			this.context.logger.log(`UNCHANGED[${this.getClassName()}]`, "|", this._getChangedProps(), "|", this._getUsedProps());
 		}
 		return Promise.resolve();
 	}
 
 	_render(force) {
-		if (this.isRendered() && !isPropsChangeEqual(this._getChangedProps(), this.getDDM().getPureUseProps())) {
-			this.context.logger.log(`> RESET[${this.getClassName()}] [ CONNECTOR ]`);
+		if (!force && this.isRendered() && !isPropsChangeEqual(this._getChangedProps(), this.getDDM().getPureUseProps())) {
+			this.context.logger.log(`> RESET STATE[${this.getClassName()}] | CONNECTOR`);
 			this.getDDM().resetState(this.getCurrentState());
 		} else {
-			this.context.logger.log(`> RENDER[${this.getClassName()}] [ CONNECTOR ] TYPE [ ${force ? 'FORCE' : 'AUTO'} ] METHOD [${this.getDDM().isRendered() ? 'DIFF' : 'INIT'}]`);
+			this.context.logger.log(`> RENDER[${this.getClassName()}] | CONNECTOR | ${force ? 'FORCE' : 'AUTO'} | ${this.getDDM().isRendered() ? 'DIFF' : 'INIT'}`);
 			this.getDDM().render(this.getCurrentState());
 		}
 		return this._refresh(force);
@@ -722,10 +722,10 @@ class View extends BaseView {
 	_updateFromDataSet() {
 		if (this.isRendered()) {
 			if (isPropsChangeEqual(this._getChangedProps(), this._getUsedProps())) {
-				this.context.logger.log(`CHANGED[${this.getClassName()}][${this.getId() || ''}]`, "CHANGE", this._getChangedProps());
+				this.context.logger.log(`CHANGED[${this.getClassName()}]`, "|", this._getChangedProps(), "|", this._getUsedProps());
 				return this._render();
 			} else {
-				this.context.logger.log(`UNCHANGED[${this.getClassName()}][${this.getId() || ''}]`, "CHANGE", this._getChangedProps(), "USED", this._getUsedProps());
+				this.context.logger.log(`UNCHANGED[${this.getClassName()}]`, "|", this._getChangedProps(), "|", this._getUsedProps());
 			}
 		} else {
 			return this._render();
@@ -738,7 +738,7 @@ class View extends BaseView {
 	}
 
 	_render(force = false) {
-		this.context.logger.log(`> RENDER[${this.getClassName()}] TYPE [ ${force ? 'FORCE' : 'AUTO'} ] METHOD [${this.getDDM().isRendered() ? 'DIFF' : 'INIT'}]`);
+		this.context.logger.log(`> RENDER[${this.getClassName()}] | ${force ? 'FORCE' : 'AUTO'} | ${this.getDDM().isRendered() ? 'DIFF' : 'INIT'}`);
 		this.getDDM().render(this.getCurrentState());
 		if (this.context.config.develop && this.getDDM().modules().length > 0) {
 			console.warn('[ada] view typeof View can not has any child [', this.getClassName(), ']');
@@ -831,10 +831,10 @@ class ViewGroup extends View {
 	_updateFromDataSet() {
 		if (this.isRendered()) {
 			if (isPropsChange(this._getChangedProps(), this._getUsedProps())) {
-				this.context.logger.log(`CHANGED[${this.getClassName()}][${this.getId() || ''}]`, "CHANGE", this._getChangedProps());
+				this.context.logger.log(`CHANGED[${this.getClassName()}]`, "|", this._getChangedProps(), "|", this._getUsedProps());
 				return this._render();
 			} else {
-				this.context.logger.log(`UNCHANGED[${this.getClassName()}][${this.getId() || ''}]`, "CHANGE", this._getChangedProps(), "USED", this._getUsedProps());
+				this.context.logger.log(`UNCHANGED[${this.getClassName()}]`, "|", this._getChangedProps(), "|", this._getUsedProps());
 			}
 		} else {
 			return this._render();
@@ -843,11 +843,11 @@ class ViewGroup extends View {
 	}
 
 	_render(force = false) {
-		if (this.isRendered() && !isPropsChangeEqual(this._getChangedProps(), this.getDDM().getPureUseProps())) {
-			this.context.logger.log(`> RESET[${this.getClassName()}]`);
+		if (!force && this.isRendered() && !isPropsChangeEqual(this._getChangedProps(), this.getDDM().getPureUseProps())) {
+			this.context.logger.log(`> RESET STATE[${this.getClassName()}]`);
 			this.getDDM().resetState(this.getCurrentState());
 		} else {
-			this.context.logger.log(`> RENDER[${this.getClassName()}] TYPE [ ${force ? 'FORCE' : 'AUTO'} ] METHOD [${this.getDDM().isRendered() ? 'DIFF' : 'INIT'}]`);
+			this.context.logger.log(`> RENDER[${this.getClassName()}] | ${force ? 'FORCE' : 'AUTO'} | ${this.getDDM().isRendered() ? 'DIFF' : 'INIT'}`);
 			this.getDDM().render(this.getCurrentState());
 		}
 		return this._refresh(force);

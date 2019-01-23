@@ -37,22 +37,20 @@ const REGS = {
 	syntaxs: /\{\{[\s\S]+?\}\}/g
 };
 const SINGLETAG = ["br", "hr", "img", "input", "param", "link", "meta", "area", "base", "basefont", "param", "col", "frame", "embed", "keygen", "source"];
-const TEMPLATECACHE = new Map();
 const IDNAME = "$$ID";
 
 let SelfCloseTags = [...SINGLETAG];
 
 let TemplateCache = {
-	map: new Map(),
-	set(temp, info) {
-		let key = hashCode(temp);
-		this.map.set(key, Object.assign(this.map.get(key) || {}, info));
+	map: {},
+	set(key, info) {
+		this.map[key] = Object.assign(this.map[key] || {}, info);
 	},
-	get(temp) {
-		return this.map.get(hashCode(temp));
+	get(key) {
+		return this.map[key];
 	},
-	has(temp) {
-		return this.map.has(hashCode(temp));
+	has(key) {
+		return this.map[key] !== undefined;
 	}
 };
 
@@ -752,12 +750,7 @@ let Parser = {
 		return t;
 	},
 	parse(context, temp = "", tags = {}) {
-		let result = "";
-		if (!TEMPLATECACHE.has(temp)) {
-			result = Parser.code(Parser.parseMacro(Parser.beautySyntax.parse(Parser.preparse(context, temp, tags))));
-			TEMPLATECACHE.set(temp, result);
-		}
-		return TEMPLATECACHE.get(temp);
+		return Parser.code(Parser.parseMacro(Parser.beautySyntax.parse(Parser.preparse(context, temp, tags))));
 	}
 };
 let Differ = {
@@ -1286,20 +1279,30 @@ class MapDom {
 	}
 }
 
+window.templateCache = TemplateCache;
+
 class Template {
 	constructor(context, template = "", macro = {}, id, option = {}) {
 		this._id = id;
 		this._currentState = null;
 		this._macrofn = Object.assign({}, context.ddm.defaultMacros, macro);
-		this._templateStr = template;
-		this._code = Parser.parse(context, template, option ? option.tags || {} : {});
 		this._option = option;
 		this._context = context;
 		this._isRendered = false;
 		this._useprops = [];
 		this._usepureprops = [];
-		this._macroCollector = {};
-		this._pureCode = "";
+		this._key = hashCode(template);
+		if (!TemplateCache.has(this._key)) {
+			let code = Parser.parse(context, template, option ? option.tags || {} : {});
+			TemplateCache.set(this._key, {
+				template,
+				macros: {custom: "", module: ""},
+				pureCode: "",
+				pureFn: null,
+				code,
+				fn: new Function(IDNAME, "data", ...this._context.ddm.defaultFunctionNames, code)
+			});
+		}
 	}
 
 	_macro({tag: methodName, bodyStr, props, events, attrs, uses, usesmap}) {
@@ -1370,7 +1373,10 @@ class Template {
 					Object.assign(_out.events, events);
 					Object.assign(_out.attrs, attrs);
 					if (_out.attrs["data-module"]) {
-						this._macroCollector[methodName] = "";
+						let {macros} = TemplateCache.get(this._key);
+						if (!macros[methodName]) {
+							this._setPureFn();
+						}
 					}
 					return [_out];
 				} else {
@@ -1380,9 +1386,33 @@ class Template {
 				return result || "";
 			}
 		} else {
-			console.error("[ada] macro can not found [" + methodName + "] template is " + this._templateStr);
+			console.error("[ada] macro can not found [" + methodName + "] template is " + TemplateCache.get(this._key));
 			return "";
 		}
+	}
+
+	_setPureFn() {
+		let {macros} = TemplateCache.get(this._key);
+		let targets = Reflect.ownKeys(macros).filter(key => macros[key] === "");
+		if (targets.length > 0) {
+			targets.forEach(key => macros[key] = true);
+			let pureCode = TemplateCache.get(this._key).code.replace(REGS.macro, str => {
+				let k = str.match(REGS.macroTag);
+				if (k) {
+					let name = k[0].substring(5, k[0].length - 1);
+					if (targets.indexOf(name) !== -1) {
+						return "'';";
+					}
+				}
+				return str;
+			});
+			let paras = [IDNAME, "data", ...this._context.ddm.defaultFunctionNames, pureCode];
+			TemplateCache.set(this._key, {pureCode, pureFn: new Function(...paras)});
+		}
+	}
+
+	getTemplateStr() {
+		return TemplateCache.get(this._key).template;
 	}
 
 	getAttributeByPath(path = []) {
@@ -1415,29 +1445,13 @@ class Template {
 	}
 
 	getCurrentState(data) {
-		let paras = [IDNAME, "data", ...this._context.ddm.defaultFunctionNames, this._code];
-		let _paras = [this._id, data, ...this._context.ddm.defaultFunctionFns];
-		return new Function(...paras).call(this, ..._paras);
+		let {fn} = TemplateCache.get(this._key);
+		return fn.call(this, this._id, data, ...this._context.ddm.defaultFunctionFns);
 	}
 
 	getCurrentStateWithoutMacros(data) {
-		let targets = Reflect.ownKeys(this._macroCollector).filter(key => this._macroCollector[key] !== "");
-		if (targets.length > 0) {
-			targets.forEach(key => this._macroCollector[key] = true);
-			this._pureCode = this._code.replace(REGS.macro, str => {
-				let k = str.match(REGS.macroTag);
-				if (k) {
-					let name = k[0].substring(5, k[0].length - 1);
-					if (targets.indexOf(name) !== -1) {
-						return "'';";
-					}
-				}
-				return str;
-			});
-		}
-		let paras = [IDNAME, "data", ...this._context.ddm.defaultFunctionNames, this._pureCode];
-		let _paras = [this._id, data, ...this._context.ddm.defaultFunctionFns];
-		return new Function(...paras).call(this, ..._paras);
+		let {pureFn} = TemplateCache.get(this._key);
+		return pureFn.call(this, this._id, data, ...this._context.ddm.defaultFunctionFns);
 	}
 
 	render(data = {}, isdiff = true) {
@@ -1449,7 +1463,7 @@ class Template {
 		this._currentState = collector.invoke({}, this);
 		this._useprops = collector.getUsedPros();
 
-		if (this._macroCollector.length > 0) {
+		if (TemplateCache.get(this._key).pureFn) {
 			let collectorc = new Collector({data, fn: this.getCurrentStateWithoutMacros, freeze: false});
 			collectorc.invoke({}, this);
 			this._usepureprops = collectorc.getUsedPros();
@@ -1476,7 +1490,7 @@ class Template {
 	}
 
 	isRendered() {
-		return !this._templateStr || this._isRendered;
+		return !TemplateCache.get(this._key).template || this._isRendered;
 	}
 }
 

@@ -4,7 +4,7 @@ class DDMVariables {
     constructor() {
         this._defaultMacros = {
             self({props, context}) {
-                return {template: context._templateStr, data: props.data};
+                return {template: context.getTemplateStr(), data: props.data};
             },
             custom({bodyStr, props, events, attrs, option, env}) {
                 let template = "";
