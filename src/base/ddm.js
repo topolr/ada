@@ -1320,6 +1320,7 @@ class Template {
 				code,
 				coverageCount,
 				isCollectPure: false,
+				done: false,
 				fn: new Function(IDNAME, "data", ...this._context.ddm.defaultFunctionNames, code)
 			});
 		}
@@ -1492,10 +1493,12 @@ class Template {
 			collectorc.invoke({}, this);
 			this._usepureprops = collectorc.getUsedProps();
 			if (this._usepureprops.length === 0 && TemplateCache.get(this._key).coverageCount === 0) {
-				TemplateCache.set(this._key, {isCollectPure: false, pureFn: null, pureCode: ''});
+				TemplateCache.set(this._key, {isCollectPure: false, pureFn: null, pureCode: '', done: true});
 			}
 		} else {
-			this._usepureprops = this._useprops;
+			if (!TemplateCache.get(this._key).done) {
+				this._usepureprops = this._useprops;
+			}
 		}
 
 		this._isRendered = true;

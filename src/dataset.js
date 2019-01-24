@@ -203,6 +203,12 @@ class TransactDataSet extends DataSet {
 		}
 	}
 
+	resetHistory() {
+		setProp(this, DATASETRANSACTION, []);
+		setProp(this, DATASETRANSACTIONSTATE, []);
+		setProp(this, DATASETRANSACTIONSTEP, 0);
+	}
+
 	_setState(state) {
 		if (this[DATASETRANSACTIONSTATE].length > this.getTransactionSize()) {
 			this[DATASETRANSACTIONSTATE].shift();
