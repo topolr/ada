@@ -1,38 +1,39 @@
 class BaseLogger {
-    constructor(context) {
-        this._context = context;
-        this._on = false;
-    }
+	constructor(context) {
+		this._context = context;
+		this._on = context.window.localStorage['ada-logger-on'] === 'on';
+	}
 
-    get on() {
-        return this._on;
-    }
+	get on() {
+		return this._on;
+	}
 
-    set on(a) {
-        this._on = a;
-    }
+	set on(a) {
+		this._on = a;
+		this._context.window.localStorage['ada-logger-on'] = a ? 'on' : 'off';
+	}
 
-    log() {
-    }
+	log() {
+	}
 
-    error() {
-    }
+	error() {
+	}
 
-    warn() {
-    }
+	warn() {
+	}
 
-    info() {
-    }
+	info() {
+	}
 
-    isOn() {
-        return this._on === true;
-    }
+	isOn() {
+		return this._on === true;
+	}
 
-    group() {
-    }
+	group() {
+	}
 
-    groupEnd() {
-    }
+	groupEnd() {
+	}
 }
 
 module.exports = BaseLogger;
