@@ -1053,7 +1053,7 @@ let Effecter = {
 		}
 	},
 	effect(context, dom, actions) {
-		context.logger.log(`> DDM : Badd:${actions.badd.length} Add:${actions.add.length} Replace:${actions.replace.length} Remove:${actions.remove.length} Edit:${actions.edit.length} RemoveAll:${actions.removeAll.length} Bremove:${actions.bremove.length} Sort:${actions.sort.length}`);
+		context.logger.log(`> DIFF : Badd:${actions.badd.length} Add:${actions.add.length} Replace:${actions.replace.length} Remove:${actions.remove.length} Edit:${actions.edit.length} RemoveAll:${actions.removeAll.length} Bremove:${actions.bremove.length} Sort:${actions.sort.length}`);
 		let adds = {};
 		actions.badd.forEach(action => {
 			let t = dom;
