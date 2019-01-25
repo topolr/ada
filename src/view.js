@@ -29,6 +29,7 @@ let {
 let factory = require("./util/factory");
 let {DataSet, DataSetHelper} = require("./dataset");
 let Collector = require("./base/collector");
+let {ViewHadRemovedError} = require("./util/error");
 
 const macros = {
 	module({bodyStr, props, events, attrs}) {
@@ -80,6 +81,8 @@ function addChild(type = null, {name = "", parameter = {}, container = null, att
 				});
 			}
 		});
+	} else {
+		return Promise.reject(new ViewHadRemovedError('view had removed,can not add child'));
 	}
 }
 
@@ -529,7 +532,7 @@ class ViewConnector extends BaseView {
 		if (!this.isRemoved()) {
 			return this._updateFromParent(protectData(data));
 		}
-		return Promise.reject("view is removed");
+		return Promise.reject(new ViewHadRemovedError('view had removed,can not add child'));
 	}
 
 	onchildremoved() {
@@ -685,7 +688,7 @@ class View extends BaseView {
 		if (!this.isRemoved()) {
 			return this._updateFromParent(data);
 		}
-		return Promise.reject("view is removed");
+		return Promise.reject(new ViewHadRemovedError('view had removed,can not add child'));
 	}
 
 	commit(type, data) {
