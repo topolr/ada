@@ -445,7 +445,10 @@ class BaseView {
 			let ps = Promise.resolve();
 			let parent = this.getParent();
 			if (parent && !parent.isRemoved()) {
-				parent[CHILDRENTAG].splice(parent[CHILDRENTAG].indexOf(this), 1);
+				let _target = parent[CHILDRENTAG].indexOf(this);
+				if (_target !== -1) {
+					parent[CHILDRENTAG].splice(_target, 1);
+				}
 				if (this[PREREMOVED] !== true && parent.onchildremoved) {
 					ps = ps.then(() => parent.onchildremoved(this));
 				}

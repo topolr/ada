@@ -672,7 +672,10 @@ let Parser = {
 								r.push(m);
 							}
 						});
-						node.parent.children.splice(node.parent.children.indexOf(node), 1, ...r);
+						let _index = node.parent.children.indexOf(node);
+						if (_index !== -1) {
+							node.parent.children.splice(_index, 1, ...r);
+						}
 					}
 				}
 			} else {

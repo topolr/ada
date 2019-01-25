@@ -474,7 +474,9 @@ class Node {
 	removeEventListener(type, fn) {
 		if (this._listener[type]) {
 			let index = this._listener[type].indexOf(fn);
-			this._listener[type].splice(index, 1);
+			if (index !== -1) {
+				this._listener[type].splice(index, 1);
+			}
 		}
 	}
 
