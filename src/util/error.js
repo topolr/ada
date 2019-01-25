@@ -1,8 +1,8 @@
 class ViewHadRemovedError extends Error {
-	constructor(message) {
-		super(message);
-		this.name = "ViewHadRemovedError";
-	}
+    constructor(message) {
+        super(message);
+        this.name = "ViewHadRemovedError";
+    }
 }
 
-export {ViewHadRemovedError};
+module.exports = {ViewHadRemovedError};
