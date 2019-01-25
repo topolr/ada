@@ -1,7 +1,7 @@
 import {view,${exname}} from "adajs";
 
 @view({
-    className:"${name}",
+    className:"${styleName}",
     template:"./template.html",
     style:"./style.scss"
 })

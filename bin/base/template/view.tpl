@@ -2,7 +2,7 @@ import {view,${exname}} from "adajs";
 import ${className}Service from "./state.js";
 
 @view({
-    className:"${name}",
+    className:"${styleName}",
     template:"./template.html",
     style:"./style.scss",
     dataset:{

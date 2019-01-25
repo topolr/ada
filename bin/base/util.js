@@ -29,20 +29,20 @@ const util = {
 		let config = require(appPath);
 		config.projectPath = projectPath;
 		config.basePath = Path.resolve(appPath, "./../");
-		config.distPath = Path.join(config.basePath, config.distPath).replace(/\\/g, "/");
-		config.sourcePath = Path.join(config.basePath, config.sourcePath).replace(/\\/g, "/");
-		config.nmodulePath = Path.join(config.projectPath, "./node_modules/").replace(/\\/g, "/");
-		config.indexPath = Path.join(config.basePath, config.indexPath, "./../").replace(/\\/g, "/");
-		config.entryPath = Path.join(config.basePath, config.entryPath).replace(/\\/g, "/");
-		config.mainEntryPath = Path.join(config.basePath, config.main).replace(/\\/g, "/");
+		config.distPath = Path.resolve(config.basePath, config.distPath).replace(/\\/g, "/");
+		config.sourcePath = Path.resolve(config.basePath, config.sourcePath).replace(/\\/g, "/");
+		config.nmodulePath = Path.resolve(config.projectPath, "./node_modules/").replace(/\\/g, "/");
+		config.indexPath = Path.resolve(config.basePath, config.indexPath, "./../").replace(/\\/g, "/");
+		config.entryPath = Path.resolve(config.basePath, config.entryPath).replace(/\\/g, "/");
+		config.mainEntryPath = Path.resolve(config.basePath, config.main).replace(/\\/g, "/");
 		if (config.initer) {
-			config.initerPath = Path.join(config.basePath, config.initer).replace(/\\/g, "/");
+			config.initerPath = Path.resolve(config.basePath, config.initer).replace(/\\/g, "/");
 		}
 		if (config.worker && config.worker.path) {
-			config.workerPath = Path.join(config.basePath, config.worker.path).replace(/\\/g, "/");
+			config.workerPath = Path.resolve(config.basePath, config.worker.path).replace(/\\/g, "/");
 		}
 		if (config.staticPath) {
-			config.staticPath = Path.join(config.basePath, config.staticPath).replace(/\\/g, "/");
+			config.staticPath = Path.resolve(config.basePath, config.staticPath).replace(/\\/g, "/");
 		}
 		["projectPath", "basePath", "distPath", "sourcePath", "entryPath", "staticPath", "nmodulePath"].forEach(name => {
 			if (config[name] && !config[name].endsWith("/")) {
