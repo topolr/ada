@@ -31,7 +31,7 @@ class RequestMananger {
             data: {},
             body: "",
             credentials: null,
-            encodeURI: false,
+            contentType:"json",
             ondownloadprogress: null,
             onuploadprogress: null
         }, option);

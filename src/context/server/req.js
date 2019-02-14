@@ -1,5 +1,10 @@
 let request = require("request");
 
+const CONTENTYPE = {
+    json: "application/json",
+    uri: "application/x-www-form-urlencoded"
+};
+
 module.exports = function (context, ops) {
     let cancel = null, _request = null;
     let promise = new Promise((resolve, reject) => {
@@ -28,11 +33,12 @@ module.exports = function (context, ops) {
         if (ops.method === "get") {
             option.qs = ops.data;
         } else {
-            if (ops.encodeURI) {
-                option.headers["Content-type"] = "application/x-www-form-urlencoded";
+            if (ops.contentType !== false) {
+                option.headers["Content-type"] = CONTENTYPE[ops.contentType] || ops.contentType;
+            }
+            if (ops.contentType === 'uri') {
                 option.form = data;
             } else {
-                option.headers["Content-type"] = "application/json";
                 option.json = true;
                 option.body = ops.data;
             }

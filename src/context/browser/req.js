@@ -13,6 +13,11 @@ let util = {
     }
 };
 
+const CONTENTYPE = {
+    json: "application/json",
+    uri: "application/x-www-form-urlencoded"
+};
+
 module.exports = function (context, ops) {
     let cancel = null, _xhr = null;
     let promise = new Promise((resolve, reject) => {
@@ -40,11 +45,10 @@ module.exports = function (context, ops) {
         Reflect.ownKeys(ops.headers).forEach(key => {
             _xhr.setRequestHeader(key, ops.headers[key]);
         });
+
         if (ops.method !== "get") {
-            if (ops.encodeURI) {
-                _xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            } else {
-                _xhr.setRequestHeader("Content-type", "application/json");
+            if (ops.contentType !== false) {
+                _xhr.setRequestHeader("Content-Type", CONTENTYPE[ops.contentType] || ops.contentType);
             }
         }
         _xhr.addEventListener("readystatechange", (e) => {
