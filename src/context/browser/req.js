@@ -32,7 +32,7 @@ module.exports = function (context, ops) {
                 let querystr = queryString(ops.data);
                 url += (url.indexOf("?") !== -1 ? (querystr === "" ? "" : "&" + querystr) : (querystr === "" ? "" : "?" + querystr));
             } else {
-                data = postData(data, ops.encodeURI);
+                data = postData(data, ops.contentType === 'uri');
             }
         }
         _xhr.open(ops.method, url);
