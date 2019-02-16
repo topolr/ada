@@ -115,7 +115,7 @@ class RequestMananger {
         return this.fetch(Object.assign({url, data}, {method: "options"}));
     }
 
-    upload(url, data = {}, onuploadprogress: null) {
+    upload(url, data = {}, onuploadprogress = null) {
         return this.origin(Object.assign({url, data, contentType: false, onuploadprogress}, {method: "post"}));
     }
 }

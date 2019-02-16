@@ -5,13 +5,13 @@ let {VIEWMAP} = require("../config");
 module.exports = {
     command: "create",
     desc: "create a view",
-    paras: ["type", "module"],
+    paras: ["type", "module", "[project]"],
     fn: function (parameters) {
-        let type = parameters[0], module = parameters[1];
+        let type = parameters[0], module = parameters[1], project = parameters[2];
         if (type && module) {
             if (VIEWMAP[type]) {
                 let spinner = ora(`create view ${module}`).start();
-                generator.create(type, module).then(() => {
+                generator.create(type, module, project).then(() => {
                     spinner.succeed(`create view ${module} done`);
                 });
             } else {
