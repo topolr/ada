@@ -31,7 +31,7 @@ class RequestMananger {
             data: {},
             body: "",
             credentials: null,
-            contentType:"json",
+            contentType: "json",
             ondownloadprogress: null,
             onuploadprogress: null
         }, option);
@@ -113,6 +113,10 @@ class RequestMananger {
 
     options(url, data = {}) {
         return this.fetch(Object.assign({url, data}, {method: "options"}));
+    }
+
+    upload(url, data = {}, onuploadprogress: null) {
+        return this.origin(Object.assign({url, data, contentType: false, onuploadprogress}, {method: "post"}));
     }
 }
 
