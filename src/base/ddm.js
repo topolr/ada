@@ -26,7 +26,7 @@ const REGS = {
     assigncodeonly: /^\(\(\[[0-9]+\]\)\)$/,
     expresscode: /\[\[[0-9]+\]\]/g,
     nodecode: /\{\{node\}\}/g,
-    prop: /[0-9a-z]+((\.)([0-9a-z_]+))+/g,
+    prop: /[0-9a-zA-Z_]+((\.)([0-9a-zA-Z_]+))+/g,
     customA: /<[\s\S]+?>/g,
     customB: /<[0-9a-z_-]+?>/,
     customC: /<[0-9a-z_-]+ .*?>/,
