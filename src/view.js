@@ -320,7 +320,11 @@ class BaseView {
 
     getAssetURL(path) {
         let p = this.getAnnotationInfo().asset;
-        return (this.context.config.basePath + "/" + p + "/" + path).replace(/[\/]+/g, "/");
+        if (p) {
+            return (this.context.config.basePath + "/" + p + "/" + path).replace(/[\/]+/g, "/");
+        } else {
+            return "";
+        }
     }
 
     excuteAssetScript(path) {
