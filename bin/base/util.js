@@ -27,10 +27,8 @@ const util = {
             appPath = Path.resolve(projectPath, "./app.js");
         }
         let config = require(appPath);
-        config.projectPath = projectPath;
         let basePath = Path.resolve(appPath, "./../");
         if (!config.apps) {
-            let config = this.extend(true, {}, Config, origin);
             config.projectPath = projectPath;
             config.basePath = basePath;
             config.distPath = Path.join(basePath, config.distPath).replace(/\\/g, "/");
