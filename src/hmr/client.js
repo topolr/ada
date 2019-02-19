@@ -17,27 +17,29 @@ let client = {
                     this.tryTime = 0;
                     try {
                         let data = JSON.parse(e.data), log = data.log;
-                        if (log && log.length === 0) {
-                            teminal.hide();
-                            if (bar.getState(context)) {
-                                if (data.type === "edit") {
-                                    bar.actionStart();
-                                    updater.refresh(context, data.files, data.map).then(() => {
-                                        bar.actionDone();
-                                    }).catch(() => {
+                        if (data.name === context.config.name) {
+                            if (log && log.length === 0) {
+                                teminal.hide();
+                                if (bar.getState(context)) {
+                                    if (data.type === "edit") {
+                                        bar.actionStart();
+                                        updater.refresh(context, data.files, data.map).then(() => {
+                                            bar.actionDone();
+                                        }).catch(() => {
+                                            context.window.location.reload();
+                                        });
+                                    } else if (data.type !== "start") {
                                         context.window.location.reload();
-                                    });
-                                } else if (data.type !== "start") {
-                                    context.window.location.reload();
+                                    }
+                                } else {
+                                    console.log(`%c[Ada] HMR is stopped`, "color:#3D78A7;font-weight:bold");
                                 }
                             } else {
-                                console.log(`%c[Ada] HMR is stopped`, "color:#3D78A7;font-weight:bold");
+                                teminal.showError(context, log || []);
                             }
-                        } else {
-                            teminal.showError(context, log || []);
-                        }
-                        if (data.type === "reload") {
-                            context.window.location.reload();
+                            if (data.type === "reload") {
+                                context.window.location.reload();
+                            }
                         }
                     } catch (e) {
                         context.window.location.reload();
