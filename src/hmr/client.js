@@ -17,7 +17,7 @@ let client = {
                     this.tryTime = 0;
                     try {
                         let data = JSON.parse(e.data), log = data.log;
-                        if (data.name === context.config.name) {
+                        if (!context.config.name || data.name === context.config.name) {
                             if (log && log.length === 0) {
                                 teminal.hide();
                                 if (bar.getState(context)) {

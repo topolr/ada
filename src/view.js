@@ -330,8 +330,8 @@ class BaseView {
     excuteAssetScript(path) {
         let src = this.getAssetURL(path);
         return new Promise((resolve, reject) => {
-            if (!document.querySelector('script[src="' + src + '"]')) {
-                let script = document.createElement("script");
+            if (!this.context.document.querySelector('script[src="' + src + '"]')) {
+                let script = this.context.document.createElement("script");
                 script.setAttribute("src", src);
                 script.addEventListener("load", () => {
                     resolve();
@@ -339,7 +339,7 @@ class BaseView {
                 script.addEventListener("error", () => {
                     reject();
                 });
-                document.head.appendChild(script);
+                this.context.document.head.appendChild(script);
             } else {
                 resolve();
             }
@@ -349,11 +349,11 @@ class BaseView {
     excuteAssetStyle(path) {
         let src = this.getAssetURL(path);
         return new Promise((resolve, reject) => {
-            if (!document.querySelector('script[src="' + src + '"]')) {
-                let _a = context.document.createElement("style");
+            if (!this.context.document.querySelector('script[src="' + src + '"]')) {
+                let _a = this.context.document.createElement("style");
                 _a.setAttribute("media", "screen");
                 _a.setAttribute("type", "text/css");
-                document.head.appendChild(_a);
+                this.context.document.head.appendChild(_a);
             }
             resolve();
         });
