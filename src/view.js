@@ -412,8 +412,9 @@ class BaseView {
                         clazz = props["type"],
                         parameter = props["parameter"],
                         name = props["name"] || "",
+                        id = props["id"],
                         useProps = props["useProps"] ? [...props["useProps"]] : [];
-                    if (!cache || cache.constructor !== clazz || cache.isRemoved() || cache.getName() !== name) {
+                    if (!cache || cache.constructor !== clazz || cache.isRemoved() || cache.getName() !== name || (props.hasOwnProperty('id') && cache.getId() !== id)) {
                         let ps = Promise.resolve();
                         if (cache && !cache.isRemoved()) {
                             ps = ps.then(() => cache._remove());
@@ -425,7 +426,8 @@ class BaseView {
                                 dom: item.element(),
                                 name,
                                 useProps,
-                                context: this.context
+                                context: this.context,
+                                id
                             }).then(_view => {
                                 if (!_view.isRemoved()) {
                                     this.context.logger.group(`CREATE CHILD[${_view.getClassName() || ''}]`);
