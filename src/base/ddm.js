@@ -820,32 +820,22 @@ let Differ = {
             } else {
                 if (a[0].attrs && a[0].attrs.uid && b[0] && b[0].attrs && b[0].attrs.uid) {
                     let removeInfos = [], addInfos = [], sortInfos = [], aIds = [], bIds = [];
-                    if (a.length < b.length) {
-                        aIds = a.map(node => node.attrs.uid);
-                        b = b.filter((node, index) => {
-                            if (aIds.indexOf(node.attrs.uid) === -1) {
-                                removeInfos.push(index);
-                            } else {
-                                return true;
-                            }
-                        });
-                    } else if (a.length > b.length) {
-                        b = b.map(node => {
-                            bIds.push(node.attrs.uid);
-                            return node;
-                        });
-                        a.forEach((node, index) => {
-                            let id = node.attrs.uid;
-                            aIds.push(id);
-                            if (bIds.indexOf(id) === -1) {
-                                bIds.push(node.attrs.uid);
-                                addInfos.push({node, index});
-                                b.push(node);
-                            }
-                        });
-                    } else {
-                        aIds = a.map(node => node.attrs.uid);
-                    }
+                    aIds = a.map(node => node.attrs.uid);
+                    b = b.filter((node, index) => {
+                        bIds.push(node.attrs.uid);
+                        if (aIds.indexOf(node.attrs.uid) === -1) {
+                            removeInfos.push(index);
+                        } else {
+                            return true;
+                        }
+                    });
+                    a.forEach((node, index) => {
+                        let id = node.attrs.uid;
+                        if (bIds.indexOf(id) === -1) {
+                            addInfos.push({node, index});
+                            b.push(node);
+                        }
+                    });
                     let result = [];
                     b.forEach((node, i) => {
                         let id = node.attrs.uid, to = aIds.indexOf(id);
