@@ -330,19 +330,10 @@ class BaseView {
     excuteAssetScript(path) {
         let src = this.getAssetURL(path);
         return new Promise((resolve, reject) => {
-            if (!this.context.document.querySelector('script[src="' + src + '"]')) {
-                let script = this.context.document.createElement("script");
-                script.setAttribute("src", src);
-                script.addEventListener("load", () => {
-                    resolve();
-                });
-                script.addEventListener("error", () => {
-                    reject();
-                });
-                this.context.document.head.appendChild(script);
-            } else {
+            this.context.request.origin({url: src, method: 'get'}).promise.then(({data}) => {
+                new Function("window", data).call(this.context.window, this.context.window);
                 resolve();
-            }
+            });
         });
     }
 
