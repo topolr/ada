@@ -57,12 +57,14 @@ let TemplateCache = {
 
 let TemplateParseCache = {
     map: {},
-    get(context, temp, tags) {
-        let id = hashCode(temp);
-        if (!this.map[id]) {
-            this.map[id] = Parser.parse(context, temp, tags);
-        }
-        return this.map[id];
+    has(key) {
+        return this.map[key] !== undefined;
+    },
+    set(key, info) {
+        this.map[key] = info;
+    },
+    get(key) {
+        return this.map[key];
     }
 };
 
@@ -120,16 +122,23 @@ let Parser = {
                 return `<%var ${str.join(" ")};%>`;
             }
         },
-        parse(strs = "") {
+        parse(strs = "", directives) {
             return strs.replace(REGS.syntaxs, (str) => {
                 let a = str.substring(2, str.length - 2),
                     b = a.split(" "),
                     c = b.shift();
                 try {
-                    if (Parser.beautySyntax.syntaxs[c]) {
-                        return Parser.beautySyntax.syntaxs[c](b);
+                    let _directives = {};
+                    Reflect.ownKeys(directives || {}).forEach(directive => {
+                        _directives[directive] = (str) => {
+                            return `<%=assign(${directive},${str.filter(a => !!a).join(",")});%>`;
+                        }
+                    });
+                    let syntaxs = Object.assign(Parser.beautySyntax.syntaxs, _directives);
+                    if (syntaxs[c]) {
+                        return syntaxs[c](b);
                     } else {
-                        return Parser.beautySyntax.syntaxs.defaults(str);
+                        return syntaxs.defaults(str);
                     }
                 } catch (e) {
                     console.log(e);
@@ -217,7 +226,7 @@ let Parser = {
             }
         }
     },
-    getHTMLString(context, nodes) {
+    getHTMLString(context, nodes, directives) {
         let str = "";
 
         let html = (node) => {
@@ -228,8 +237,9 @@ let Parser = {
                 } else {
                     let _adtype = node.type;
                     let _code = node.content;
-                    if (context.ddm.defaultAssignDirectives[_adtype]) {
-                        _code = context.ddm.defaultAssignDirectives[_adtype](node.content);
+                    let _directives = Object.assign({}, context.ddm.defaultAssignDirectives, directives);
+                    if (_directives[_adtype]) {
+                        _code = _directives[_adtype](node.content);
                     }
                     result = "<div class=\"ada-assign-directive\" data-assign-directive-type=\"" + _adtype + "\">" + (_code || '') + "</div>";
                 }
@@ -772,7 +782,7 @@ let Parser = {
         t += "return $$RESULT;";
         return t;
     },
-    parse(context, temp = "", tags = {}) {
+    parse(context, temp = "", tags = {}, directives) {
         let coverageCount = 0, code = "";
         temp.replace(REGS.syntaxs, (str) => {
             let a = str.substring(2, str.length - 2), b = a.split(" "), c = b.shift();
@@ -783,7 +793,7 @@ let Parser = {
                 coverageCount++;
             }
         });
-        code = Parser.code(Parser.parseMacro(Parser.beautySyntax.parse(Parser.preparse(context, temp, tags))));
+        code = Parser.code(Parser.parseMacro(Parser.beautySyntax.parse(Parser.preparse(context, temp, tags), directives)));
         return { coverageCount, code };
     }
 };
@@ -1009,7 +1019,7 @@ let Differ = {
     }
 };
 let Effecter = {
-    element(context, data, issvg) {
+    element(context, data, issvg, directives) {
         if (data.tag === "svg") {
             !issvg ? (issvg = true) : "";
         }
@@ -1021,8 +1031,9 @@ let Effecter = {
                     return context.document.createTextNode(data.content);
                 } else {
                     let _adtype = data.type, _code = data.content;
-                    if (context.ddm.defaultAssignDirectives[_adtype]) {
-                        _code = context.ddm.defaultAssignDirectives[_adtype](data.content);
+                    let _directives = Object.assign({}, context.ddm.defaultAssignDirectives, directives);
+                    if (_directives[_adtype]) {
+                        _code = _directives[_adtype](data.content);
                     }
                     let rtn = context.document.createElement("div");
                     rtn.setAttribute("class", "ada-assign-directive");
@@ -1056,7 +1067,7 @@ let Effecter = {
             return t;
         }
     },
-    effect(context, dom, actions) {
+    effect(context, dom, actions, directives) {
         context.logger.log(`> DIFF[${actions.badd.length + actions.add.length + actions.replace.length + actions.remove.length + actions.edit.length + actions.removeAll.length + actions.bremove.length + actions.sort.length}] : Badd:${actions.badd.length} Add:${actions.add.length} Replace:${actions.replace.length} Remove:${actions.remove.length} Edit:${actions.edit.length} RemoveAll:${actions.removeAll.length} Bremove:${actions.bremove.length} Sort:${actions.sort.length}`);
         let adds = {};
         actions.badd.forEach(action => {
@@ -1066,7 +1077,7 @@ let Effecter = {
                     t = t.childNodes[path / 1];
                 });
             }
-            t.appendChild(Effecter.element(context, action.node));
+            t.appendChild(Effecter.element(context, action.node, false, directives));
         });
         actions.bremove.map(remove => {
             let t = dom;
@@ -1113,12 +1124,12 @@ let Effecter = {
                         has = true;
                     } else {
                         has = false;
-                        t.appendChild(Effecter.element(context, action.node));
+                        t.appendChild(Effecter.element(context, action.node, false, directives));
                     }
                 });
             }
             if (has) {
-                t.parentNode.replaceChild(Effecter.element(context, action.node), t);
+                t.parentNode.replaceChild(Effecter.element(context, action.node, false, directives), t);
             }
         });
         actions.add.forEach(action => {
@@ -1215,10 +1226,10 @@ let Effecter = {
             let actions = adds[i];
             if (actions.length > 0) {
                 let fm = context.document.createDocumentFragment();
-                actions.forEach(action => fm.appendChild(Effecter.element(context, action.n)));
+                actions.forEach(action => fm.appendChild(Effecter.element(context, action.n, false, directives)));
                 actions[0].p.appendChild(fm);
             } else {
-                actions.p.appendChild(Effecter.element(context, actions.n));
+                actions.p.appendChild(Effecter.element(context, actions.n, false, directives));
             }
         });
     }
@@ -1304,7 +1315,7 @@ class MapDom {
 }
 
 class Template {
-    constructor({ context, template = "", className = '', macro = {}, id, option = {}, fns = {} }) {
+    constructor({ context, template = "", className = '', macro = {}, id, option = {}, fns = {}, directives = {} }) {
         this._id = id;
         this._currentState = null;
         this._macrofn = Object.assign({}, context.ddm.defaultMacros, macro);
@@ -1322,7 +1333,10 @@ class Template {
             return fns[a];
         });
         if (!TemplateCache.has(this._key)) {
-            let { coverageCount, code } = TemplateParseCache.get(context, template, option ? option.tags || {} : {});
+            if (!TemplateParseCache.has(this._key)) {
+                TemplateParseCache.set(this._key, Parser.parse(context, template, (option ? option.tags || {} : {}), directives));
+            }
+            let { coverageCount, code } = TemplateParseCache.get(this._key);
             TemplateCache.set(this._key, {
                 template,
                 macros: { custom: "", module: "" },
@@ -1506,7 +1520,7 @@ class Template {
         return pureFn.call(this, this._id, data, ...this._context.ddm.defaultFunctionFns, ...this._fnFns);
     }
 
-    render(data = {}, isdiff = true) {
+    render(data = {}, isdiff = true, directives) {
         let _beforeState = null;
         if (this._currentState) {
             _beforeState = this._currentState;
@@ -1533,10 +1547,10 @@ class Template {
             if (_beforeState) {
                 return Differ.diff(this._currentState, _beforeState);
             } else {
-                return Parser.getHTMLString(this._context, this._currentState);
+                return Parser.getHTMLString(this._context, this._currentState, directives);
             }
         } else {
-            return Parser.getHTMLString(this._context, this._currentState);
+            return Parser.getHTMLString(this._context, this._currentState, directives);
         }
     }
 
@@ -1552,7 +1566,7 @@ class Template {
 }
 
 class DDM {
-    constructor({ id, container = null, templateStr = "", binders = {}, macro = {}, option = {}, context = null, className, fns = {} }) {
+    constructor({ id, container = null, templateStr = "", binders = {}, macro = {}, option = {}, context = null, className, fns = {}, directives = {} }) {
         this._context = context;
         this._id = id;
         this._container = container;
@@ -1563,8 +1577,10 @@ class DDM {
             macro,
             id,
             option,
+            directives,
             fns
         });
+        this._directives = directives;
         this._binders = binders;
         this._isrender = false;
         this._className = className || "";
@@ -1661,10 +1677,10 @@ class DDM {
     }
 
     render(data, isdiff = true) {
-        let result = this._cross.render(data, isdiff);
+        let result = this._cross.render(data, isdiff, this._directives);
         if (result) {
             if (isdiff && !isString(result)) {
-                Effecter.effect(this._context, this._container, result);
+                Effecter.effect(this._context, this._container, result, this._directives);
             }
             (!this._container.innerHTML) && (this._container.innerHTML = result);
         }

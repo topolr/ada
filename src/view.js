@@ -169,6 +169,7 @@ class BaseView {
             },
             fns: this.fns(),
             macro: this._macros(),
+            directives: this.directives(),
             className: info.className || "",
             context
         }));
@@ -269,6 +270,10 @@ class BaseView {
     }
 
     fns() {
+        return {};
+    }
+
+    directives() {
         return {};
     }
 
