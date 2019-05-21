@@ -1,12 +1,12 @@
-let {Parser} = require("./../../base/ddm");
+let { Parser } = require("./../../base/ddm");
 
 class DDMVariables {
     constructor() {
         this._defaultMacros = {
-            self({props, context}) {
-                return {template: context.getTemplateStr(), data: props.data};
+            self({ props, context }) {
+                return { template: context.getTemplateStr(), data: props.parameter };
             },
-            custom({bodyStr, props, events, attrs, option, env}) {
+            custom({ bodyStr, props, events, attrs, option, env }) {
                 let template = "";
                 let tagName = props.customTagName, generator = option ? (option.tags ? option.tags[tagName] : null) : null;
                 if (!generator) {
@@ -24,7 +24,7 @@ class DDMVariables {
                 } else {
                     throw Error(`[ada] tag [${tagName}] can not defined with function of generate template`);
                 }
-                return {template, data: props};
+                return { template, data: props };
             }
         };
         this._defaultAssignDirectives = {
