@@ -166,6 +166,7 @@ class BaseView {
             option: {
                 tags: this._getTags()
             },
+            fns: this.fns(),
             macro: this._macros(),
             className: info.className || "",
             context
@@ -263,6 +264,10 @@ class BaseView {
     }
 
     macros() {
+        return {};
+    }
+
+    fns() {
         return {};
     }
 

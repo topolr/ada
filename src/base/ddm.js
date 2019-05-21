@@ -1,7 +1,7 @@
 let eventHelper = require("../lib/event");
 let Collector = require("./collector");
-let {encodeHTML, isFunction, isPlainObject, randomid, isString, hashCode} = require("../util/helper");
-let {PROXYSTATE} = require("./../util/const");
+let { encodeHTML, isFunction, isPlainObject, randomid, isString, hashCode } = require("../util/helper");
+let { PROXYSTATE } = require("./../util/const");
 
 const REGS = {
     k: /\r/g,
@@ -52,6 +52,17 @@ let TemplateCache = {
     },
     has(key) {
         return this.map[key] !== undefined;
+    }
+};
+
+let TemplateParseCache = {
+    map: {},
+    get(context, temp, tags) {
+        let id = hashCode(temp);
+        if (!this.map[id]) {
+            this.map[id] = Parser.parse(context, temp, tags);
+        }
+        return this.map[id];
     }
 };
 
@@ -475,7 +486,7 @@ let Parser = {
                     }
                     if (macroAttrName.startsWith("on")) {
                         let _eventtype = macroAttrName.substring(2);
-                        _event.push({name: _eventtype, value: macroPropsValue});
+                        _event.push({ name: _eventtype, value: macroPropsValue });
                     } else if (macroAttrName.startsWith("@")) {
                         _props.push(`"${macroAttrName.substring(1)}":${macroPropsValue}`);
                         if (macroAttrName.substring(1).trim() === "parameter") {
@@ -639,7 +650,7 @@ let Parser = {
                 }
             }
             if (text) {
-                nodes.push({content: text || "", parent: null, isTextNode: true});
+                nodes.push({ content: text || "", parent: null, isTextNode: true });
             }
             return nodes;
         } else {
@@ -773,7 +784,7 @@ let Parser = {
             }
         });
         code = Parser.code(Parser.parseMacro(Parser.beautySyntax.parse(Parser.preparse(context, temp, tags))));
-        return {coverageCount, code};
+        return { coverageCount, code };
     }
 };
 let Differ = {
@@ -832,7 +843,7 @@ let Differ = {
                     a.forEach((node, index) => {
                         let id = node.attrs.uid;
                         if (bIds.indexOf(id) === -1) {
-                            addInfos.push({node, index});
+                            addInfos.push({ node, index });
                             b.push(node);
                         }
                     });
@@ -840,7 +851,7 @@ let Differ = {
                     b.forEach((node, i) => {
                         let id = node.attrs.uid, to = aIds.indexOf(id);
                         if (to !== -1 && to !== i) {
-                            sortInfos.push({node, from: i, to});
+                            sortInfos.push({ node, from: i, to });
                             result[to] = node;
                         } else {
                             result[i] = node;
@@ -960,7 +971,7 @@ let Differ = {
     checkProps(a, b) {
         let ap = Object.keys(a),
             bp = Object.keys(b),
-            r = {final: a},
+            r = { final: a },
             t = ap.length,
             isedit = false;
         if (ap.length < bp.length) {
@@ -990,7 +1001,7 @@ let Differ = {
         }
     },
     diff(newnode, oldnode) {
-        let r = {add: [], replace: [], remove: [], edit: [], removeAll: [], bremove: [], badd: [], sort: []},
+        let r = { add: [], replace: [], remove: [], edit: [], removeAll: [], bremove: [], badd: [], sort: [] },
             current = [];
         let a = Differ.diffNode(newnode, oldnode, current, r);
         oldnode = [];
@@ -1293,7 +1304,7 @@ class MapDom {
 }
 
 class Template {
-    constructor(context, template = "", macro = {}, id, option = {}) {
+    constructor({ context, template = "", className = '', macro = {}, id, option = {}, fns = {} }) {
         this._id = id;
         this._currentState = null;
         this._macrofn = Object.assign({}, context.ddm.defaultMacros, macro);
@@ -1302,24 +1313,31 @@ class Template {
         this._isRendered = false;
         this._useprops = [];
         this._usepureprops = [];
-        this._key = hashCode(template);
+        this._className = className;
+        this._key = hashCode(`${className}${template}`);
+        this._fns = fns;
+        this._fnNames = [];
+        this._fnFns = Reflect.ownKeys(fns || {}).map(a => {
+            this._fnNames.push(a);
+            return fns[a];
+        });
         if (!TemplateCache.has(this._key)) {
-            let {coverageCount, code} = Parser.parse(context, template, option ? option.tags || {} : {});
+            let { coverageCount, code } = TemplateParseCache.get(context, template, option ? option.tags || {} : {});
             TemplateCache.set(this._key, {
                 template,
-                macros: {custom: "", module: ""},
+                macros: { custom: "", module: "" },
                 pureCode: "",
                 pureFn: null,
                 code,
                 coverageCount,
                 isCollectPure: false,
                 done: false,
-                fn: new Function(IDNAME, "data", ...this._context.ddm.defaultFunctionNames, code)
+                fn: new Function(IDNAME, "data", ...this._context.ddm.defaultFunctionNames, ...this._fnNames, code)
             });
         }
     }
 
-    _macro({tag: methodName, bodyStr, props, events, attrs, uses, usesmap}) {
+    _macro({ tag: methodName, bodyStr, props, events, attrs, uses, usesmap }) {
         if (this._macrofn[methodName]) {
             let useProps = new Set();
             if (props.parameter) {
@@ -1364,7 +1382,15 @@ class Template {
                 bodyStr,
                 parseBody: function (values) {
                     if (bodyStr !== "") {
-                        return new Template(this._context, bodyStr, this._macrofn, this._id, null, null).render(values);
+                        return new Template({
+                            context: this._context,
+                            template: bodyStr,
+                            className: this._className,
+                            macro: this._macrofn,
+                            id: this._id,
+                            option: null,
+                            fns: this._fns
+                        }).render(values);
                     } else {
                         return "";
                     }
@@ -1375,7 +1401,15 @@ class Template {
                 env: this._context
             });
             if (result && result.template) {
-                let _result = new Template(this._context, result.template, this._macrofn, this._id, null, null);
+                let _result = new Template({
+                    context: this._context,
+                    template: result.template,
+                    className: this._className,
+                    macro: this._macrofn,
+                    id: this._id,
+                    option: null,
+                    fns: this._fns
+                });
                 let states = _result.getCurrentState(result.data);
                 if (states.length === 1) {
                     let _out = states[0];
@@ -1387,7 +1421,7 @@ class Template {
                     Object.assign(_out.events, events);
                     Object.assign(_out.attrs, attrs);
                     if (_out.attrs["data-module"]) {
-                        let {macros} = TemplateCache.get(this._key);
+                        let { macros } = TemplateCache.get(this._key);
                         if (!macros[methodName] && props.useProps.length > 0) {
                             this._setPureFn();
                         }
@@ -1406,7 +1440,7 @@ class Template {
     }
 
     _setPureFn() {
-        let {macros} = TemplateCache.get(this._key);
+        let { macros } = TemplateCache.get(this._key);
         let targets = Reflect.ownKeys(macros).filter(key => macros[key] === "");
         if (targets.length > 0) {
             targets.forEach(key => macros[key] = true);
@@ -1420,8 +1454,8 @@ class Template {
                 }
                 return str;
             });
-            let paras = [IDNAME, "data", ...this._context.ddm.defaultFunctionNames, pureCode];
-            TemplateCache.set(this._key, {isCollectPure: true, pureCode, pureFn: new Function(...paras)});
+            let paras = [IDNAME, "data", ...this._context.ddm.defaultFunctionNames, ...this._fnNames, pureCode];
+            TemplateCache.set(this._key, { isCollectPure: true, pureCode, pureFn: new Function(...paras) });
         }
     }
 
@@ -1434,21 +1468,21 @@ class Template {
     }
 
     getAttributeByPath(path = []) {
-        let node = {children: this._currentState};
+        let node = { children: this._currentState };
         path.forEach((p) => node = node.children[p]);
         return node.props || null;
     }
 
     getEventsByPath(path = []) {
-        let node = {children: this._currentState};
+        let node = { children: this._currentState };
         path.forEach((p) => node = node.children[p]);
         return node.events || null;
     }
 
     getAllInfoByPath(path = []) {
-        let node = {children: this._currentState};
+        let node = { children: this._currentState };
         path.forEach((p) => node = node.children[p]);
-        return {events: node.events, props: node.props};
+        return { events: node.events, props: node.props };
     }
 
     getCurrentEventMap() {
@@ -1463,13 +1497,13 @@ class Template {
     }
 
     getCurrentState(data) {
-        let {fn} = TemplateCache.get(this._key);
-        return fn.call(this, this._id, data, ...this._context.ddm.defaultFunctionFns);
+        let { fn } = TemplateCache.get(this._key);
+        return fn.call(this, this._id, data, ...this._context.ddm.defaultFunctionFns, ...this._fnFns);
     }
 
     getCurrentStateWithoutMacros(data) {
-        let {pureFn} = TemplateCache.get(this._key);
-        return pureFn.call(this, this._id, data, ...this._context.ddm.defaultFunctionFns);
+        let { pureFn } = TemplateCache.get(this._key);
+        return pureFn.call(this, this._id, data, ...this._context.ddm.defaultFunctionFns, ...this._fnFns);
     }
 
     render(data = {}, isdiff = true) {
@@ -1477,16 +1511,16 @@ class Template {
         if (this._currentState) {
             _beforeState = this._currentState;
         }
-        let collector = new Collector({data, fn: this.getCurrentState, freeze: false});
+        let collector = new Collector({ data, fn: this.getCurrentState, freeze: false });
         this._currentState = collector.invoke({}, this);
         this._useprops = collector.getUsedProps();
 
         if (TemplateCache.get(this._key).isCollectPure) {
-            let collectorc = new Collector({data, fn: this.getCurrentStateWithoutMacros, freeze: false});
+            let collectorc = new Collector({ data, fn: this.getCurrentStateWithoutMacros, freeze: false });
             collectorc.invoke({}, this);
             this._usepureprops = collectorc.getUsedProps();
             if (this._usepureprops.length === 0 && TemplateCache.get(this._key).coverageCount === 0) {
-                TemplateCache.set(this._key, {isCollectPure: false, pureFn: null, pureCode: '', done: true});
+                TemplateCache.set(this._key, { isCollectPure: false, pureFn: null, pureCode: '', done: true });
             }
         } else {
             if (!TemplateCache.get(this._key).done) {
@@ -1507,7 +1541,7 @@ class Template {
     }
 
     resetState(data) {
-        let collector = new Collector({data, fn: this.getCurrentState, freeze: false});
+        let collector = new Collector({ data, fn: this.getCurrentState, freeze: false });
         this._currentState = collector.invoke({}, this);
         this._useprops = collector.getUsedProps();
     }
@@ -1518,17 +1552,25 @@ class Template {
 }
 
 class DDM {
-    constructor({id, container = null, templateStr = "", binders = {}, macro = {}, option = {}, context = null, className}) {
+    constructor({ id, container = null, templateStr = "", binders = {}, macro = {}, option = {}, context = null, className, fns = {} }) {
         this._context = context;
         this._id = id;
         this._container = container;
-        this._cross = new Template(context, templateStr, macro, id, option);
+        this._cross = new Template({
+            context,
+            template: templateStr,
+            className,
+            macro,
+            id,
+            option,
+            fns
+        });
         this._binders = binders;
         this._isrender = false;
         this._className = className || "";
     }
 
-    _agentEvent({bubbleEvents, unBubbleEvents}) {
+    _agentEvent({ bubbleEvents, unBubbleEvents }) {
         let dom = this._container;
         eventHelper.unbind(dom);
         bubbleEvents.forEach(eventType => {
@@ -1541,21 +1583,21 @@ class DDM {
                         let _a = bindTypesStr.split(":");
                         let hash = _a[0], types = _a[1] ? _a[1].split(",") : [];
                         if (hash === this.getId() && types.indexOf(eventType) !== -1) {
-                            let {events, props} = this._cross.getAllInfoByPath(MapDom.getElementPath(this._container, current));
+                            let { events, props } = this._cross.getAllInfoByPath(MapDom.getElementPath(this._container, current));
                             let _info = events[e.type];
                             if (_info) {
-                                targets.push({info: _info, props});
+                                targets.push({ info: _info, props });
                             }
                         }
                     }
                     current = current.parentNode;
                 }
-                targets.forEach(({info, props}) => {
-                    let {method, parameters, paranames} = info;
+                targets.forEach(({ info, props }) => {
+                    let { method, parameters, paranames } = info;
                     if (this._binders) {
-                        let pars = {e, props};
+                        let pars = { e, props };
                         paranames.split(",").forEach((key, i) => pars[key] = parameters[i]);
-                        this._binders({method, parameters: pars});
+                        this._binders({ method, parameters: pars });
                     }
                 });
             });
@@ -1571,14 +1613,14 @@ class DDM {
                             let _a = bindTypesStr.split(":");
                             let hash = _a[0], types = _a[1] ? _a[1].split(",") : [];
                             if (hash === this.getId() && types.indexOf(eventType) !== -1) {
-                                let {events, props} = this._cross.getAllInfoByPath(MapDom.getElementPath(this._container, target));
+                                let { events, props } = this._cross.getAllInfoByPath(MapDom.getElementPath(this._container, target));
                                 let _info = events[e.type];
                                 if (_info) {
-                                    let {method, parameters, paranames} = _info;
+                                    let { method, parameters, paranames } = _info;
                                     if (this._binders) {
-                                        let pars = {e, props};
+                                        let pars = { e, props };
                                         paranames.split(",").forEach((key, i) => pars[key] = parameters[i]);
-                                        this._binders({method: _info.method, parameters: pars});
+                                        this._binders({ method: _info.method, parameters: pars });
                                     }
                                 }
                             }
@@ -1652,4 +1694,4 @@ class DDM {
     }
 }
 
-module.exports = {Parser, DDM, MapDom};
+module.exports = { Parser, DDM, MapDom };
