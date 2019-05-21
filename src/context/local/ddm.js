@@ -8,7 +8,7 @@ class DDMVariables {
             },
             custom({bodyStr, props, events, attrs, option, env}) {
                 let template = "";
-                let tagName = props.customTagName, generator = option.tags ? option.tags[tagName] : null;
+                let tagName = props.customTagName, generator = option ? (option.tags ? option.tags[tagName] : null) : null;
                 if (!generator) {
                     generator = env.tags.get(tagName);
                 }
