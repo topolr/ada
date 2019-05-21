@@ -1,6 +1,6 @@
 let Metadata = require("./lib/metadata");
-let {DDM, MapDom} = require("./base/ddm");
-let {getDataSetFromParent, isFunction, isPropsChange, isPropsChangeEqual, protectData, randomid, setProp} = require("./util/helper");
+let { DDM, MapDom } = require("./base/ddm");
+let { getDataSetFromParent, isFunction, isPropsChange, isPropsChangeEqual, protectData, randomid, setProp } = require("./util/helper");
 let {
     BINDERS,
     CHANGEPROPS,
@@ -27,21 +27,21 @@ let {
     CONTEXT
 } = require("./util/const");
 let factory = require("./util/factory");
-let {DataSet, DataSetHelper} = require("./dataset");
+let { DataSet, DataSetHelper } = require("./dataset");
 let Collector = require("./base/collector");
-let {ViewHadRemovedError} = require("./util/error");
+let { ViewHadRemovedError } = require("./util/error");
 
 const macros = {
-    module({bodyStr, props, events, attrs}) {
+    module({ bodyStr, props, events, attrs }) {
         let r = [`data-module=""`];
         Reflect.ownKeys(attrs).forEach(attr => r.push(`${attr}="${attr}"`));
         let template = `<div ${r.join(" ")}>${bodyStr}</div>`;
-        return {template, data: props};
+        return { template, data: props };
     }
 };
 const tags = {
     module: {
-        template({bodyStr, props, events, attrs}) {
+        template({ bodyStr, props, events, attrs }) {
             let r = [`data-module=""`];
             Reflect.ownKeys(attrs).forEach(attr => r.push(`${attr}="${attr}"`));
             return `<div ${r.join(" ")}>${bodyStr}</div>`;
@@ -50,7 +50,7 @@ const tags = {
     }
 };
 
-function addChild(type = null, {name = "", parameter = {}, container = null, attrs = {}} = {}, parent, isbond = false) {
+function addChild(type = null, { name = "", parameter = {}, container = null, attrs = {} } = {}, parent, isbond = false) {
     if (!parent.isRemoved()) {
         if (!container) {
             container = parent.context.document.body;
@@ -135,7 +135,7 @@ class ClassNames {
 }
 
 class BaseView {
-    constructor({parent = null, dom = null, info = {}, name = "", useProps = [], context = null, id}) {
+    constructor({ parent = null, dom = null, info = {}, name = "", useProps = [], context = null, id }) {
         if (!dom) {
             dom = context.document.body;
         }
@@ -148,6 +148,7 @@ class BaseView {
         setProp(this, VIEWINFO, info);
         setProp(this, VIEWNAME, name);
         setProp(this, USEPROPS, useProps);
+        setProp(this, OBSERVERS, {});
         if (info.className) {
             setProp(this, CLASSNAME, info.className);
         }
@@ -155,7 +156,7 @@ class BaseView {
             id: this.getId(),
             container: this.getDDMContainer(),
             templateStr: info.template || "",
-            binders: ({method, parameters}) => {
+            binders: ({ method, parameters }) => {
                 let info = this[BINDERS] || {};
                 let _method = info[method];
                 if (_method && this[_method]) {
@@ -330,7 +331,7 @@ class BaseView {
     excuteAssetScript(path) {
         let src = this.getAssetURL(path);
         return new Promise((resolve, reject) => {
-            this.context.request.origin({url: src, method: 'get'}).promise.then(({data}) => {
+            this.context.request.origin({ url: src, method: 'get' }).promise.then(({ data }) => {
                 new Function("window", data).call(this.context.window, this.context.window);
                 resolve();
             });
@@ -348,6 +349,20 @@ class BaseView {
             }
             resolve();
         });
+    }
+
+    on(type, fn) {
+        if (!this[OBSERVERS][type]) {
+            this[OBSERVERS][type] = [];
+        }
+        if (this[OBSERVERS][type].indexOf(fn) === -1) {
+            this[OBSERVERS][type].push(fn);
+        }
+    }
+
+    emit(type, data) {
+        let targets = this[OBSERVERS][type] || [];
+        targets.forEach(a => a(data));
     }
 
     _triggerEvent(e) {
@@ -378,8 +393,8 @@ class BaseView {
             let g = _tags[name];
             if (isFunction(g)) {
                 result[name] = {
-                    option: {type: g},
-                    template({bodyStr, props, events, attrs, generateOption}) {
+                    option: { type: g },
+                    template({ bodyStr, props, events, attrs, generateOption }) {
                         let r = [`data-module=""`];
                         props.type = generateOption.type;
                         Reflect.ownKeys(attrs).forEach(attr => r.push(`${attr}="${attr}"`));
@@ -623,7 +638,7 @@ class ViewConnector extends BaseView {
     }
 
     _updateFromParent(parameter) {
-        let collector = new Collector({data: this.getCurrentState(), fn: this.onupdate});
+        let collector = new Collector({ data: this.getCurrentState(), fn: this.onupdate });
         this[CONNECTSTATE] = collector.invoke(parameter, this);
         this[CHANGEPROPS] = collector.getChangedProps();
         if (isPropsChange(this._getChangedProps(), this._getUsedProps())) {
@@ -638,7 +653,7 @@ class ViewConnector extends BaseView {
         return Promise.resolve();
     }
 
-    _updateFromConnect({data = {}, setter}) {
+    _updateFromConnect({ data = {}, setter }) {
         let collector = new Collector({
             data: this.getCurrentState(),
             fn: setter
@@ -915,7 +930,7 @@ class StaticViewGroup extends ViewGroup {
         super(parameters);
     }
 
-    addChild(type = null, {name = "", parameter = {}, container = null, attrs = {}} = {}) {
+    addChild(type = null, { name = "", parameter = {}, container = null, attrs = {} } = {}) {
         return addChild(type, arguments[1], this, false);
     }
 
@@ -1012,7 +1027,7 @@ class BondViewGroup extends ViewGroup {
         return this[DDMCONTAINER];
     }
 
-    addChild(type = null, {name = "", parameter = {}, container = null, attrs = {}} = {}) {
+    addChild(type = null, { name = "", parameter = {}, container = null, attrs = {} } = {}) {
         return addChild(type, arguments[1], this, true);
     }
 
@@ -1079,4 +1094,4 @@ class BondViewGroup extends ViewGroup {
     }
 }
 
-module.exports = {View, ViewGroup, StaticViewGroup, BondViewGroup, ViewConnector};
+module.exports = { View, ViewGroup, StaticViewGroup, BondViewGroup, ViewConnector };

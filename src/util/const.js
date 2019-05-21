@@ -36,3 +36,4 @@ exports.DATASETCOMPUTE = Symbol("compute");
 exports.CONNECTSTATE = Symbol("connectstate");
 exports.BASEDATA = Symbol("data");
 exports.MODULEPATH = Symbol("[[path]]");
+exports.OBSERVERS=Symbol('observers');
