@@ -24,7 +24,8 @@ let {
     VIEWNAME,
     MODULEPATH,
     VIEWTAG,
-    CONTEXT
+    CONTEXT,
+    OBSERVERS
 } = require("./util/const");
 let factory = require("./util/factory");
 let { DataSet, DataSetHelper } = require("./dataset");
