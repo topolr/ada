@@ -15,7 +15,7 @@ let {
 	CONTEXT
 } = require("./util/const");
 let Collector = require("./base/collector");
-let {isPropsChange, protectData, setProp} = require("./util/helper");
+let { isPropsChange, protectData, setProp } = require("./util/helper");
 
 class Service {
 	get context() {
@@ -28,6 +28,10 @@ class Service {
 
 	defaultData() {
 		return {};
+	}
+
+	primeKeys() {
+		return [];
 	}
 
 	onupdate(current, data) {
@@ -94,11 +98,28 @@ class DataSet {
 		return this[DATASETEDITS];
 	}
 
+	assignState(...objects) {
+		let keys = this[DATASETSERVICE].primeKeys();
+		if (keys.length > 0) {
+			let t = {};
+			objects.reverse().forEach(obj => {
+				Reflect.ownKeys(obj || {}).forEach(key => {
+					if (keys.indexOf(key) !== -1) {
+						t[key] = obj[key];
+					}
+				});
+			});
+			Object.assign(this[DATASETDATA], t);
+		} else {
+			Object.assign(this[DATASETDATA], ...objects);
+		}
+	}
+
 	_addListener(view, getter, setter) {
 		let result = {};
 		let index = this[DATASETLISTENER].findIndex(item => item.view === view);
 		if (index === -1) {
-			let collector = new Collector({data: this[DATASETDATA], fn: getter});
+			let collector = new Collector({ data: this[DATASETDATA], fn: getter });
 			result = collector.invoke();
 			setTimeout(() => {
 				this[DATASETLISTENER].push({
@@ -142,7 +163,7 @@ class TransactDataSet extends DataSet {
 	}
 
 	commit(type, data) {
-		this[DATASETRANSACTION].unshift({type, data});
+		this[DATASETRANSACTION].unshift({ type, data });
 		return super.commit(type, data);
 	}
 
@@ -220,7 +241,7 @@ class TransactDataSet extends DataSet {
 }
 
 class DataSetHelper {
-	static getDataSet({type = DataSet, service = Service}, owner) {
+	static getDataSet({ type = DataSet, service = Service }, owner) {
 		let _dataset = new type();
 		_dataset[DATASETOWNER] = owner;
 		if (service.prototype instanceof Service) {
@@ -228,7 +249,7 @@ class DataSetHelper {
 		} else {
 			throw Error("[ada] must be a Service class");
 		}
-		_dataset[DATASETSERVICE][DATASETACTION] = Object.assign({update: "onupdate"}, Metadata.getMetadataExtends("action", _dataset[DATASETSERVICE].constructor.prototype) || {});
+		_dataset[DATASETSERVICE][DATASETACTION] = Object.assign({ update: "onupdate" }, Metadata.getMetadataExtends("action", _dataset[DATASETSERVICE].constructor.prototype) || {});
 		_dataset[DATASETSERVICE][DATASETCOMPUTE] = Metadata.getMetadataExtends("compute", _dataset[DATASETSERVICE].constructor.prototype) || {};
 		_dataset[DATASETSERVICE][CONTEXT] = owner.context;
 		return _dataset;
@@ -296,7 +317,7 @@ class DataSetHelper {
 					});
 					let result = collector.invoke();
 					b.useprops = collector.getUsedProps();
-					return b.view._updateFromConnect({data: result, setter: b.setter});
+					return b.view._updateFromConnect({ data: result, setter: b.setter });
 				} else {
 					return Promise.resolve();
 				}
