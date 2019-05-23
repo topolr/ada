@@ -48,7 +48,7 @@ class Service {
 	}
 
 	onupdate(current, data) {
-		return current;
+		this.assign(current, data);
 	}
 }
 
@@ -86,7 +86,7 @@ class DataSet {
 	getData() {
 		if (!this[DATASETDATA]) {
 			this[DATASETDATA] = this[DATASETSERVICE].defaultData();
-			this[DATASETDATA][PRIMEKEY] = Reflect.ownKeys(this[DATASETDATA] || {}).filter(key => !key.startsWith('_'));
+			this[DATASETSERVICE][PRIMEKEY] = Reflect.ownKeys(this[DATASETDATA] || {}).filter(key => !key.startsWith('_'));
 		}
 		return this[DATASETDATA];
 	}
