@@ -373,7 +373,16 @@ class BaseView {
 
     emit(type, data) {
         let targets = this[OBSERVERS][type] || [];
-        targets.forEach(a => a(data));
+        return targets.reduce((a, observer) => {
+            return a.then(() => {
+                return new Promise(resolve => {
+                    Promise.resolve().then(() => observer(data)).then(a => resolve(a), a => {
+                        console.error(a);
+                        resolve();
+                    });
+                });
+            });
+        }, Promise.resolve());
     }
 
     _triggerEvent(e) {
