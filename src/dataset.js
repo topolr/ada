@@ -98,7 +98,7 @@ class DataSet {
 		return this[DATASETEDITS];
 	}
 
-	assignState(...objects) {
+	assignState(current, ...objects) {
 		let keys = this[DATASETSERVICE].primeKeys();
 		if (keys.length > 0) {
 			let t = {};
@@ -109,9 +109,9 @@ class DataSet {
 					}
 				});
 			});
-			Object.assign(this[DATASETDATA], t);
+			Object.assign(current, t);
 		} else {
-			Object.assign(this[DATASETDATA], ...objects);
+			Object.assign(current, ...objects);
 		}
 	}
 
