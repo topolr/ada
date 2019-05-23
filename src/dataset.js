@@ -12,7 +12,8 @@ let {
 	DATASETRANSACTIONSTATE,
 	DATASETRANSACTIONSTEP,
 	DATASETSERVICE,
-	CONTEXT
+	CONTEXT,
+	PRIMEKEY
 } = require("./util/const");
 let Collector = require("./base/collector");
 let { isPropsChange, protectData, setProp } = require("./util/helper");
@@ -30,8 +31,20 @@ class Service {
 		return {};
 	}
 
-	primeKeys() {
-		return [];
+	assign(current, ...objects) {
+		let keys = this[PRIMEKEY];
+		if (keys.length > 0) {
+			let r = objects.filter(a => typeof a === 'object').map(obj => {
+				let t = {};
+				Reflect.ownKeys(obj || {}).filter(key => keys.indexOf(key) !== -1).forEach(key => {
+					t[key] = obj[key];
+				});
+				return t;
+			});
+			Object.assign(current, ...r);
+		} else {
+			Object.assign(current, ...objects);
+		}
 	}
 
 	onupdate(current, data) {
@@ -73,6 +86,7 @@ class DataSet {
 	getData() {
 		if (!this[DATASETDATA]) {
 			this[DATASETDATA] = this[DATASETSERVICE].defaultData();
+			this[DATASETDATA][PRIMEKEY] = Reflect.ownKeys(this[DATASETDATA] || {}).filter(key => !key.startsWith('_'));
 		}
 		return this[DATASETDATA];
 	}
@@ -96,23 +110,6 @@ class DataSet {
 
 	getChangedProps() {
 		return this[DATASETEDITS];
-	}
-
-	assignState(current, ...objects) {
-		let keys = this[DATASETSERVICE].primeKeys();
-		if (keys.length > 0) {
-			let t = {};
-			objects.reverse().forEach(obj => {
-				Reflect.ownKeys(obj || {}).forEach(key => {
-					if (keys.indexOf(key) !== -1) {
-						t[key] = obj[key];
-					}
-				});
-			});
-			Object.assign(current, t);
-		} else {
-			Object.assign(current, ...objects);
-		}
 	}
 
 	_addListener(view, getter, setter) {
