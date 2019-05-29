@@ -37,7 +37,9 @@ class Service {
 			let r = objects.filter(a => typeof a === 'object').map(obj => {
 				let t = {};
 				Reflect.ownKeys(obj || {}).filter(key => keys.indexOf(key) !== -1).forEach(key => {
-					t[key] = obj[key];
+					if (obj[key] !== undefined) {
+						t[key] = obj[key];
+					}
 				});
 				return t;
 			});
