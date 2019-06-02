@@ -1681,8 +1681,9 @@ class DDM {
         if (result) {
             if (isdiff && !isString(result)) {
                 Effecter.effect(this._context, this._container, result, this._directives);
+            }else{
+                (!this._container.innerHTML) && (this._container.innerHTML = result);
             }
-            (!this._container.innerHTML) && (this._container.innerHTML = result);
         }
         this._agentEvent(this._cross.getCurrentEventMap());
         this._isrender = true;
