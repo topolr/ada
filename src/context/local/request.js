@@ -107,7 +107,13 @@ class RequestMananger {
                 return this._responseTransformer.reduce((a, b) => {
                     return a.then((c) => Promise.resolve().then(() => b(c)));
                 }, Promise.resolve(response));
-            }).then(response => this._responseDataFilter.reduce((a, b) => b(a), response.data));
+            }, response => {
+                return this._responseTransformer.reduce((a, b) => {
+                    return a.then((c) => Promise.resolve().then(() => b(c)));
+                }, Promise.resolve(response));
+            }).then(response => {
+                return this._responseDataFilter.reduce((a, b) => b(a), response.data);
+            });
         });
     }
 
