@@ -1608,13 +1608,15 @@ class DDM {
                     }
                     current = current.parentNode;
                 }
-                targets.forEach(({ info, props }) => {
+                let _stopPropagation = false;
+                targets.find(({ info, props }) => {
                     let { method, parameters, paranames } = info;
                     if (this._binders) {
-                        let pars = { e, props };
+                        let pars = { e, props, stopPropagation() { _stopPropagation = true, e.stopPropagation() } };
                         paranames.split(",").forEach((key, i) => pars[key] = parameters[i]);
                         this._binders({ method, parameters: pars });
                     }
+                    return _stopPropagation;
                 });
             });
         });
@@ -1681,7 +1683,7 @@ class DDM {
         if (result) {
             if (isdiff && !isString(result)) {
                 Effecter.effect(this._context, this._container, result, this._directives);
-            }else{
+            } else {
                 (!this._container.innerHTML) && (this._container.innerHTML = result);
             }
         }
