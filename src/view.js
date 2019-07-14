@@ -437,7 +437,7 @@ class BaseView {
                         props = item.getAttributes(),
                         clazz = props["type"],
                         parameter = props["parameter"],
-                        name = props["name"] || "",
+                        name = props["name"] || null,
                         id = props["id"],
                         useProps = props["useProps"] ? [...props["useProps"]] : [];
                     if (!cache || cache.constructor !== clazz || cache.isRemoved() || cache.getName() !== name || (props.hasOwnProperty('id') && cache.getId() !== id)) {
