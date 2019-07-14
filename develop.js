@@ -1,11 +1,11 @@
-let {BondViewGroup, StaticViewGroup, View, ViewConnector, ViewGroup} = require("./src/view");
-let {DataSet, DataSetHelper, Service, TransactDataSet} = require("./src/dataset");
+let { BondViewGroup, StaticViewGroup, View, ViewConnector, ViewGroup } = require("./src/view");
+let { DataSet, DataSetHelper, Service, TransactDataSet } = require("./src/dataset");
 let factory = require("./src/util/factory");
 let client = require("./src/hmr/client");
-let {PROXYSTATE, VIEWTAG, ROOTELEMENTNAME} = require("./src/util/const");
-let {Dispatcher} = require("./src/dispatcher");
+let { PROXYSTATE, VIEWTAG, ROOTELEMENTNAME } = require("./src/util/const");
+let { Dispatcher } = require("./src/dispatcher");
 let Passable = require("./src/passable");
-let {view, root, action, handler, subscribe, compute, binder} = require("./src/annotation");
+let { view, root, action, handler, subscribe, compute, binder } = require("./src/annotation");
 let {
     clone,
     encodeHTML,
@@ -126,6 +126,7 @@ if (isBrowser()) {
         }
     };
     client.client.start(context);
+    Dispatcher.request = context.request;
 }
 
 module.exports = {

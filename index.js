@@ -1,9 +1,9 @@
-let {BondViewGroup, StaticViewGroup, View, ViewConnector, ViewGroup} = require("./src/view");
-let {DataSet, Service, TransactDataSet} = require("./src/dataset");
+let { BondViewGroup, StaticViewGroup, View, ViewConnector, ViewGroup } = require("./src/view");
+let { DataSet, Service, TransactDataSet } = require("./src/dataset");
 let factory = require("./src/util/factory");
-let {Dispatcher} = require("./src/dispatcher");
+let { Dispatcher } = require("./src/dispatcher");
 let Passable = require("./src/passable");
-let {view, root, action, handler, subscribe, compute, binder} = require("./src/annotation");
+let { view, root, action, handler, subscribe, compute, binder } = require("./src/annotation");
 let {
     clone,
     encodeHTML,
@@ -44,6 +44,7 @@ if (isBrowser()) {
             factory.recover(context, info);
         }
     };
+    Dispatcher.request = context.request;
 }
 
 module.exports = {
