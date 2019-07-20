@@ -190,6 +190,9 @@ class BaseView {
     onupdated() {
     }
 
+    oneffected() {
+    }
+
     onunload() {
     }
 
@@ -476,7 +479,7 @@ class BaseView {
                             this.context.logger.group(`PREDIFF CHILD[${cache.getClassName() || ''}]`);
                             if (force || isPropsChange(this._getChangedProps(), cache._getParentUseProps())) {
                                 this.context.logger.log(!force ? `RAMIN[USED] | ${cache.getClassName()}` : `FORCE | ${cache.getClassName()}`, "|", this._getChangedProps());
-                                return cache.update(parameter).then(() => {
+                                return cache.update(parameter).then(() => cache.oneffected()).then(() => {
                                     this.context.logger.groupEnd();
                                     return cache;
                                 });
