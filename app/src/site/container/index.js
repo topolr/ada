@@ -2,7 +2,7 @@ import {BondViewGroup, handler, view} from "adajs";
 import ContainerService from "./state.js";
 import Menu from "./../menu";
 import Content from "./../content";
-import Router from "ada-uikit/src/router";
+import Router from "./../../router";
 import Comment from "./../../lib/comment";
 
 @view({
@@ -15,6 +15,7 @@ import Comment from "./../../lib/comment";
 })
 class Container extends BondViewGroup {
     oncreated() {
+        console.log('======>xxx');
         let comment = new Comment(this.context);
         this.className.add("close");
         if (window.location.href.indexOf("code=") !== -1) {

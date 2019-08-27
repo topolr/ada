@@ -27,17 +27,16 @@ class ContentService extends Service {
 	@action("setmenu")
 	setMenu(current, menu) {
 		current.menu = menu;
-		return current;
 	}
 
 	@action("getpage")
 	getPage(current) {
+		console.log('==>',`${this.context.config.basePath}docs${current.url}?h=${current.hash}`);
 		return this.request.get(`${this.context.config.basePath}docs${current.url}?h=${current.hash}`).then(content => {
+			console.log(content);
 			current.content = content;
-			return current;
 		}).catch((e) => {
 			current.content = "";
-			return current;
 		});
 	}
 }

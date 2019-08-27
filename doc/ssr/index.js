@@ -1,6 +1,6 @@
-let {DistRenderer} = require("adajs/server");
+let { DistRenderer } = require("adajs/server");
 let Path = require("path");
-let {File} = require("ada-util");
+let { File } = require("ada-util");
 
 const distPath = Path.resolve(__dirname, "./../../dist");
 
@@ -24,11 +24,14 @@ publish.on('exit', () => {
 			});
 			let startTime = new Date().getTime();
 			renderer.outputURLs(require("./../../app/src/menu").map(item => item.link)).then(results => {
-				Reflect.ownKeys(results).reduce((a, path) => {
+				return Reflect.ownKeys(results).reduce((a, path) => {
 					return a.then(() => new File(Path.resolve(distPath, `.${path === '/' ? '/index.html' : path}`)).write(results[path]));
 				}, Promise.resolve());
 			}).then(() => {
 				console.log(`[SSR] ALL DONE IN ${new Date().getTime() - startTime}ms`);
+				server.kill();
+			}).catch(e => {
+				console.log(e);
 				server.kill();
 			});
 		}
@@ -36,4 +39,7 @@ publish.on('exit', () => {
 	server.on('close', () => {
 		console.log(`[SSR] SERVER HAS STOPPED`);
 	});
+});
+process.on('unhandledRejection',(err)=>{
+	console.log('------error-----');
 });

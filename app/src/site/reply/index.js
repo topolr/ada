@@ -1,7 +1,7 @@
 import {binder, BondViewGroup, view} from "adajs";
 import ReplyService from "./state.js";
-import Toast from "ada-uikit/src/toast";
-import Loading from "ada-uikit/src/loading";
+import Toast from "./../../modules/toast";
+import Loading from "./../../modules/loading";
 
 @view({
     className: "reply",

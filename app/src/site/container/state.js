@@ -29,25 +29,21 @@ class ContainerService extends Service {
                 item.active = false;
             }
         });
-        return current;
     }
 
     @action("close")
     close(current) {
         current.close = true;
-        return current;
     }
 
     @action("open")
     open(current) {
         current.close = false;
-        return current;
     }
 
     @action("setuserinfo")
     setUserInfo(current, info) {
         current.userInfo = info;
-        return current;
     }
 }
 

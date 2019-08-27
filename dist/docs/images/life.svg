@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="441px" height="210px" viewBox="0 0 441 210" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.2 (51160) - http://www.bohemiancoding.com/sketch -->
+    <title>life</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="life">
+            <rect id="Rectangle-11" fill="#FFFFFF" x="0" y="0" width="441" height="210"></rect>
+            <g id="Group-13" transform="translate(23.000000, 15.000000)">
+                <rect id="Rectangle-8" fill="#EFEBEB" x="97" y="11" width="198" height="163"></rect>
+                <rect id="Rectangle-8" fill="#D8D8D8" x="0" y="11" width="100" height="163"></rect>
+                <rect id="Rectangle-8" fill="#F6F0F0" x="295" y="11" width="100" height="163"></rect>
+                <circle id="Oval-18" stroke="#35495D" fill="#3B97D9" cx="184" cy="100" r="5"></circle>
+                <circle id="Oval-18" stroke="#35495D" fill="#3B97D9" cx="316" cy="75" r="5"></circle>
+                <path d="M77.5,74.5 L311.5,74.5" id="Line-19" stroke="#979797" stroke-linecap="square"></path>
+                <text id="oncreated" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="18" y="65">oncreated</tspan>
+                </text>
+                <text id="onbeforecommit" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="83" y="124">onbeforecommit</tspan>
+                </text>
+                <text id="onchildadded" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="125" y="157">onchildadded</tspan>
+                </text>
+                <text id="onchildremove" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="194" y="157">onchildremove</tspan>
+                </text>
+                <text id="onupdate" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="99" y="33">onupdate</tspan>
+                </text>
+                <path d="M58.5,45.5 L58.5,75.5" id="Line-25" stroke="#979797" stroke-linecap="square"></path>
+                <text id="onupdated" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="164" y="124">onupdated</tspan>
+                </text>
+                <circle id="Oval-18" stroke="#35495D" fill="#D0021B" cx="58" cy="49" r="5"></circle>
+                <text id="onupdated" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="227" y="32">onupdated</tspan>
+                </text>
+                <text id="onupdated" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="39" y="33">onupdated</tspan>
+                </text>
+                <text id="connector" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="333" y="28">connector</tspan>
+                </text>
+                <text id="view" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="345" y="122">view</tspan>
+                </text>
+                <text id="viewgroup/connector" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="299" y="145">viewgroup/connector</tspan>
+                </text>
+                <text id="oncommited" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="225" y="124">oncommited</tspan>
+                </text>
+                <text id="onunload" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="299" y="65">onunload</tspan>
+                </text>
+                <path d="M119.5,100.5 L171.5,100.5" id="Line-24" stroke="#979797" stroke-linecap="square"></path>
+                <path d="M194.5,100.5 L240.5,100.5" id="Line-24" stroke="#979797" stroke-linecap="square"></path>
+                <path d="M113.5,44.5 L113.5,94.5" id="Line-25" stroke="#979797" stroke-linecap="square"></path>
+                <path d="M247.5,75.5 L247.5,96.5" id="Line-26" stroke="#979797" stroke-linecap="square"></path>
+                <circle id="Oval-18" stroke="#35495D" fill="#D0021B" cx="113" cy="49" r="5"></circle>
+                <path d="M118.5,48.5 L235.5,48.5" id="Line-27" stroke="#979797" stroke-linecap="square"></path>
+                <path d="M247.5,54.5 L247.5,75.5" id="Line-28" stroke="#979797" stroke-linecap="square"></path>
+                <circle id="Oval-19" stroke="#979797" cx="247" cy="49" r="10"></circle>
+                <circle id="Oval-19" stroke="#979797" cx="184" cy="100" r="10"></circle>
+                <circle id="Oval-20" fill="#979797" cx="113.5" cy="74.5" r="2.5"></circle>
+                <circle id="Oval-20" fill="#979797" cx="58.5" cy="74.5" r="2.5"></circle>
+                <circle id="Oval-20" fill="#979797" cx="247.5" cy="74.5" r="2.5"></circle>
+                <path d="M150.5,50.5 L150.5,141.5" id="Line-29" stroke="#979797" stroke-linecap="square"></path>
+                <path d="M217.5,49.5 L217.5,141.5" id="Line-29" stroke="#979797" stroke-linecap="square"></path>
+                <circle id="Oval-20" stroke="#979797" fill="#FCFCFC" cx="150.5" cy="74.5" r="2.5"></circle>
+                <circle id="Oval-20" stroke="#979797" fill="#FCFCFC" cx="150.5" cy="100.5" r="2.5"></circle>
+                <circle id="Oval-20" stroke="#979797" fill="#FCFCFC" cx="217.5" cy="100.5" r="2.5"></circle>
+                <circle id="Oval-20" stroke="#979797" fill="#FCFCFC" cx="217.5" cy="74.5" r="2.5"></circle>
+                <circle id="Oval-20" stroke="#979797" fill="#FCFCFC" cx="150.5" cy="48.5" r="2.5"></circle>
+                <circle id="Oval-20" stroke="#979797" fill="#FCFCFC" cx="217.5" cy="48.5" r="2.5"></circle>
+                <polyline id="Path-12" stroke="#D0CCCC" points="257.677118 48.3640899 281.560273 48.3640899 303.361814 26 327.271995 26"></polyline>
+                <polyline id="Path-13" stroke="#C7C1C1" points="261 100 278.617351 100 299.420642 119.821588 340.364944 119.821588"></polyline>
+                <path d="M223.5,142.5 L289.5,142.5" id="Line-30" stroke="#BAB4B4" stroke-linecap="square"></path>
+                <text id="onready" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="65" y="65">onready</tspan>
+                </text>
+                <path d="M42.5,74.5 L73.5,74.5" id="Line-23" stroke="#979797" stroke-linecap="square"></path>
+                <path d="M57.9696058,78.851995 L57.9696058,89.2993487 C57.8982094,93.9108941 58.9231698,97.0687767 61.044487,98.7729963 C63.1658042,100.477216 66.5642954,101.133684 71.2399605,100.742402 L97.9661187,100.742402" id="Path-14" stroke="#A7CCF7"></path>
+                <text id="Initialization" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="30" y="8">Initialization</tspan>
+                </text>
+                <text id="runtime" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="182" y="8">runtime</tspan>
+                </text>
+                <text id="unload" font-family="PingFangSC-Regular, PingFang SC" font-size="8" font-weight="normal" fill="#4A4A4A">
+                    <tspan x="331" y="8">unload</tspan>
+                </text>
+                <circle id="Oval-18" stroke="#35495D" fill="#3B97D9" cx="80" cy="74" r="5"></circle>
+                <polygon id="Triangle-7" fill="#979797" transform="translate(73.500000, 74.500000) rotate(90.000000) translate(-73.500000, -74.500000) " points="73.5 73 75 76 72 76"></polygon>
+                <polygon id="Triangle-7" fill="#979797" transform="translate(172.500000, 100.500000) rotate(90.000000) translate(-172.500000, -100.500000) " points="172.5 99 174 102 171 102"></polygon>
+                <polygon id="Triangle-7" fill="#979797" transform="translate(241.500000, 100.500000) rotate(90.000000) translate(-241.500000, -100.500000) " points="241.5 99 243 102 240 102"></polygon>
+                <polygon id="Triangle-7" fill="#979797" transform="translate(235.500000, 48.500000) rotate(90.000000) translate(-235.500000, -48.500000) " points="235.5 47 237 50 234 50"></polygon>
+                <polygon id="Triangle-7" fill="#979797" transform="translate(309.500000, 74.500000) rotate(90.000000) translate(-309.500000, -74.500000) " points="309.5 73 311 76 308 76"></polygon>
+                <rect id="Rectangle-9" fill="#A7CCF7" x="96" y="99" width="3" height="3"></rect>
+                <circle id="Oval-18" stroke="#35495D" fill="#3B97D9" cx="218" cy="142" r="5"></circle>
+                <circle id="Oval-18" stroke="#35495D" fill="#3B97D9" cx="150" cy="142" r="5"></circle>
+                <circle id="Oval-18" stroke="#35495D" fill="#3B97D9" cx="113" cy="100" r="5"></circle>
+                <circle id="Oval-18" stroke="#35495D" fill="#D0021B" cx="247" cy="49" r="5"></circle>
+                <circle id="Oval-18" stroke="#35495D" fill="#3B97D9" cx="248" cy="100" r="5"></circle>
+                <circle id="Oval-18" stroke="#35495D" fill="#3B97D9" cx="37" cy="74" r="5"></circle>
+                <polygon id="Triangle-6" stroke="#A7CCF7" fill="#A7CCF7" points="58 78 60 82 56 82"></polygon>
+                <rect id="Rectangle-10" stroke="#A7CCF7" x="98.5" y="86.5" width="163" height="27" rx="8"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

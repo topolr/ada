@@ -3,13 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "ada-develop": {
-    "port": "80",
-    "appPath": "./app/app-develop.js"
-  },
-  "ada-publish": {
-    "appPath": "./app/app-publish.js"
-  },
   "ada": {
     "develop": "./app/app-develop.js",
     "publish": "./app/app-publish.js"
@@ -25,8 +18,7 @@
     "url": "https://github.com/topolr/ada-template.git"
   },
   "dependencies": {
-    "ada-uikit": "git+https://github.com/topolr/ada-uikit.git",
-    "adajs": "^3.0.0-beta.25",
+    "adajs": "latest",
     "lodash": "^4.17.10"
   },
   "devDependencies": {
@@ -48,11 +40,13 @@
     "@babel/register": "^7.0.0",
     "@babel/runtime": "^7.1.2",
     "@babel/runtime-corejs2": "^7.1.2",
-    "ada-pack": "^3.0.0-beta.11",
+    "ada-pack": "latest",
     "ada-util": "git+https://github.com/topolr/ada-util.git",
     "autoprefixer": "^8.6.2",
     "express": "^4.16.2",
     "html-minifier": "^3.5.17",
+    "koa": "^2.8.1",
+    "koa-static": "^5.0.0",
     "less": "^3.0.4",
     "marked": "git+https://github.com/topolr/marked.git",
     "node-sass": "^4.9.0",

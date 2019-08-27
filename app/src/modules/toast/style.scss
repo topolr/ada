@@ -1,0 +1,24 @@
+.toast {
+    line-height: 30px;
+    padding: 0 20px 0 20px;
+    background: #24242C;
+    color: white;
+    border-radius: 15px;
+    position: fixed;
+    left: 50%;
+    bottom: -100px;
+    transition: transform ease-out .3s;
+    opacity: .9;
+    z-index:99999999;
+    .content {
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    &.in{
+        transform: translateY(-180px);
+    }
+    &.out {
+        transition: opacity ease-out 1.5s;
+        opacity: 0;
+    }
+}

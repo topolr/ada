@@ -26,13 +26,11 @@ class PagemenuService extends Service {
 		current.desc = data.desc;
 		current.close = data.close;
 		current.loading=data.loading;
-		return current;
 	}
 
 	@action("scroll")
 	scroll(current, scroll) {
 		current.scroll = scroll;
-		return current;
 	}
 }
 

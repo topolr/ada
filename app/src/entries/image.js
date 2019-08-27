@@ -1,4 +1,4 @@
-import Image from "ada-uikit/src/lazyimage";
+import Image from "./../modules/lazyimage";
 
 class ImageWrapper extends Image {
 }

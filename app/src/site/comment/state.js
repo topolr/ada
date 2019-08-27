@@ -13,7 +13,6 @@ class CommentService extends Service {
 
 	onupdate(current, data) {
 		current.commentId = data.commentId;
-		return current;
 	}
 
 	@action("get")
@@ -38,7 +37,6 @@ class CommentService extends Service {
 				});
 			}, Promise.resolve()).then(() => {
 				current.loading = false;
-				return current;
 			});
 		});
 	}

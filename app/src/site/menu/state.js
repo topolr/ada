@@ -11,7 +11,6 @@ class MenuService extends Service {
 	onupdate(current, data) {
 		current.list = data.list;
 		current.close = data.close;
-		return current;
 	}
 }
 
