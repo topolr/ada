@@ -1,1 +1,0 @@
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _sponsors=_interopRequireDefault(require("site/sponsors/index.js"));function _interopRequireDefault(e){return e&&e.__esModule?e:{default:e}}class SponsorsWrapper extends _sponsors.default{}var _default=SponsorsWrapper;exports.default=_default;

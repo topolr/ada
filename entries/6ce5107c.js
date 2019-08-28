@@ -1,1 +1,0 @@
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _contributor=_interopRequireDefault(require("site/contributor/index.js"));function _interopRequireDefault(e){return e&&e.__esModule?e:{default:e}}class ContributorWrapper extends _contributor.default{}var _default=ContributorWrapper;exports.default=_default;

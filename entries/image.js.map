@@ -1,0 +1,1 @@
+{"version":3,"sources":["/entries/image.js"],"names":["ImageWrapper","Image"],"mappings":";;;;;;;AAAA;;;;AAEA,MAAMA,YAAN,SAA2BC,kBAA3B,CAAiC;;eAGlBD,Y","sourcesContent":["import Image from \"./../modules/lazyimage\";\n\nclass ImageWrapper extends Image {\n}\n\nexport default ImageWrapper;"]}
