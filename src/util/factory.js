@@ -1,6 +1,6 @@
 let Metadata = require("./../lib/metadata");
-let {ROOTELEMENTNAME, VIEWTAG, DATASET, DATASETDATA, DDMTAG, CHILDRENTAG} = require("./const");
-let {parseTemplate, parseStyle, excuteStyle, setProp} = require("./helper");
+let { ROOTELEMENTNAME, VIEWTAG, DATASET, DATASETDATA, DDMTAG, CHILDRENTAG } = require("./const");
+let { parseTemplate, parseStyle, excuteStyle, setProp } = require("./helper");
 let env = require("./../env");
 
 let factory = {
@@ -18,7 +18,7 @@ let factory = {
             return Promise.resolve();
         }
     },
-    getViewInstance({viewClass, parent, dom, name = "", tag = "view", useProps = [], context = null, id}) {
+    getViewInstance({ viewClass, parent, dom, name = "", tag = "view", useProps = [], context = null, id }) {
         let info = Metadata.getMetadataExtends(tag, viewClass.prototype);
         if (!info.scope) {
             info.scope = "local";
@@ -71,9 +71,9 @@ let factory = {
                         useProps: [],
                         context
                     }).then(view => {
-                        view.oncreated();
-                        return view.update(parameter).then(() => {
-                            view.onready();
+                        return Promise.resolve().then(() => view.oncreated()).then(() => {
+                            return view.update(parameter).then(() => view.onready());
+                        }).then(() => {
                             return view;
                         });
                     });
@@ -94,14 +94,14 @@ let factory = {
     init(context, initer) {
         context._steps.push("init");
         if (initer) {
-            context._bootFlow = context._bootFlow.then(() => initer.call({context})).then(info => {
+            context._bootFlow = context._bootFlow.then(() => initer.call({ context })).then(info => {
                 return context._invokeHook("initdone", info);
             });
         }
     },
-    boot({root = "", basePath = "", parameter = {}, map = {}, develop = true, context, name = ""} = {}) {
+    boot({ root = "", basePath = "", parameter = {}, map = {}, develop = true, context, name = "" } = {}) {
         context._steps.push("boot");
-        context.config = {root, basePath, develop, parameter, sourceMap: map, name};
+        context.config = { root, basePath, develop, parameter, sourceMap: map, name };
         env.develop = develop;
         if (root.indexOf("./") === 0) {
             root = root.substring(2);
@@ -126,7 +126,7 @@ let factory = {
                                 mutations.forEach(mutation => [...mutation.removedNodes].reduce((a, target) => {
                                     return a.then(() => factory.cleanView(target));
                                 }, Promise.resolve()));
-                            }).observe(context.document, {childList: true, subtree: true});
+                            }).observe(context.document, { childList: true, subtree: true });
                         } else {
                             context.document.addEventListener("DOMNodeRemoved", (e) => factory.cleanView(e.target));
                         }
@@ -143,7 +143,7 @@ let factory = {
     },
     recover(context, info) {
         let setView = (info, parent) => {
-            let {id, module, name, useProps} = info;
+            let { id, module, name, useProps } = info;
             return context.loader.loadModule(module).then(view => {
                 return this.getViewInstance({
                     viewClass: view,

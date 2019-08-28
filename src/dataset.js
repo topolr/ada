@@ -80,7 +80,9 @@ class DataSet {
 			});
 		}
 		return this[DATASETISCOMMIT].then(a => {
-			this.context.logger.groupEnd();
+			if (this[DATASETOWNER]) {
+				this.context.logger.groupEnd();
+			}
 			return a;
 		});
 	}
@@ -196,7 +198,9 @@ class TransactDataSet extends DataSet {
 			return this[DATASETOWNER]._updateForceFromDataSet().then(() => {
 				return DataSetHelper.dispatchForce(this).then(() => {
 					this[DATASETEDITS] = [];
-					this.context.logger.groupEnd();
+					if (this[DATASETOWNER]) {
+						this.context.logger.groupEnd();
+					}
 					return this[DATASETDATA];
 				});
 			});
@@ -214,7 +218,9 @@ class TransactDataSet extends DataSet {
 			return this[DATASETOWNER]._updateForceFromDataSet().then(() => {
 				return DataSetHelper.dispatchForce(this).then(() => {
 					this[DATASETEDITS] = [];
-					this.context.logger.groupEnd();
+					if (this[DATASETOWNER]) {
+						this.context.logger.groupEnd();
+					}
 					return this[DATASETDATA];
 				});
 			});

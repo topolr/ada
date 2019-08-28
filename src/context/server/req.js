@@ -45,8 +45,8 @@ module.exports = function (context, ops) {
         }
         _request = request(option, (error, response, body) => {
             _request = null;
-            let status = response.statusCode;
             if (!error) {
+                let status = response.statusCode;
                 if ((status >= 200 && status < 300) || status === 304 || status === 0) {
                     resolve({
                         data: body,
@@ -65,7 +65,7 @@ module.exports = function (context, ops) {
                 }
             } else {
                 reject({
-                    status,
+                    status: 500,
                     option: ops,
                     error
                 });
