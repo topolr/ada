@@ -8,7 +8,7 @@ class RequestMananger {
         this._responseTransformer = [];
         this._responseDataFilter = [];
         this.addResponseDataFilter(data => {
-            if (data[0] === '[' || data[0] === '{') {
+            if (data && (data[0] === '[' || data[0] === '{')) {
                 try {
                     data = JSON.parse(data);
                 } catch (e) {
