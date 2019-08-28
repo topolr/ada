@@ -21,7 +21,7 @@ class Root extends StaticViewGroup {
             });
             this.context.document.head.appendChild(s);
         }
-        this.addChild(Container).then(a=>console.log(a));
+        this.addChild(Container);
     }
 }
 

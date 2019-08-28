@@ -1,4 +1,4 @@
-import {action, Service} from "adajs";
+import { action, Service } from "adajs";
 import addIcon from "./icons/add.icon";
 
 class CommentService extends Service {
@@ -18,7 +18,7 @@ class CommentService extends Service {
 	@action("get")
 	get(current) {
 		return this.context.comment.getIssueCommentsById(current.commentId).then(info => {
-			current.infos = info.map(info => {
+			current.infos = (info || []).map(info => {
 				return {
 					id: info.id,
 					content: info.body,

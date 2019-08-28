@@ -1,1 +1,55 @@
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _dec,_class,_adajs=require("adajs"),_arrow=_interopRequireDefault(require("site/pagemenu/icons/arrow.icon")),_menu=_interopRequireDefault(require("site/pagemenu/icons/menu.icon")),_git=_interopRequireDefault(require("site/pagemenu/icons/git.icon")),_npm=_interopRequireDefault(require("site/pagemenu/icons/npm.icon"));function _interopRequireDefault(e){return e&&e.__esModule?e:{default:e}}function _applyDecoratedDescriptor(e,r,i,t,l){var o={};return Object.keys(t).forEach(function(e){o[e]=t[e]}),o.enumerable=!!o.enumerable,o.configurable=!!o.configurable,("value"in o||o.initializer)&&(o.writable=!0),o=i.slice().reverse().reduce(function(i,t){return t(e,r,i)||i},o),l&&void 0!==o.initializer&&(o.value=o.initializer?o.initializer.call(l):void 0,o.initializer=void 0),void 0===o.initializer&&(Object.defineProperty(e,r,o),o=null),o}let PagemenuService=(_dec=(0,_adajs.action)("scroll"),_applyDecoratedDescriptor((_class=class extends _adajs.Service{defaultData(){return{title:"",desc:"",menu:[],close:!1,scroll:!1,loading:!1,arrowIcon:_arrow.default,menuIcon:_menu.default,gitIcon:_git.default,npmIcon:_npm.default}}onupdate(e,r){e.menu=r.menu,e.title=r.title,e.desc=r.desc,e.close=r.close,e.loading=r.loading}scroll(e,r){e.scroll=r}}).prototype,"scroll",[_dec],Object.getOwnPropertyDescriptor(_class.prototype,"scroll"),_class.prototype),_class);var _default=PagemenuService;exports.default=_default;
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _adajs = require("adajs");
+
+var _arrow = _interopRequireDefault(require("site/pagemenu/icons/arrow.icon"));
+
+var _menu = _interopRequireDefault(require("site/pagemenu/icons/menu.icon"));
+
+var _git = _interopRequireDefault(require("site/pagemenu/icons/git.icon"));
+
+var _npm = _interopRequireDefault(require("site/pagemenu/icons/npm.icon"));
+
+var _dec, _class;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) { var desc = {}; Object.keys(descriptor).forEach(function (key) { desc[key] = descriptor[key]; }); desc.enumerable = !!desc.enumerable; desc.configurable = !!desc.configurable; if ('value' in desc || desc.initializer) { desc.writable = true; } desc = decorators.slice().reverse().reduce(function (desc, decorator) { return decorator(target, property, desc) || desc; }, desc); if (context && desc.initializer !== void 0) { desc.value = desc.initializer ? desc.initializer.call(context) : void 0; desc.initializer = undefined; } if (desc.initializer === void 0) { Object.defineProperty(target, property, desc); desc = null; } return desc; }
+
+let PagemenuService = (_dec = (0, _adajs.action)("scroll"), (_class = class PagemenuService extends _adajs.Service {
+  defaultData() {
+    return {
+      title: "",
+      desc: "",
+      menu: [],
+      close: false,
+      scroll: false,
+      loading: false,
+      arrowIcon: _arrow.default,
+      menuIcon: _menu.default,
+      gitIcon: _git.default,
+      npmIcon: _npm.default
+    };
+  }
+
+  onupdate(current, data) {
+    current.menu = data.menu;
+    current.title = data.title;
+    current.desc = data.desc;
+    current.close = data.close;
+    current.loading = data.loading;
+  }
+
+  scroll(current, scroll) {
+    current.scroll = scroll;
+  }
+
+}, (_applyDecoratedDescriptor(_class.prototype, "scroll", [_dec], Object.getOwnPropertyDescriptor(_class.prototype, "scroll"), _class.prototype)), _class));
+var _default = PagemenuService;
+exports.default = _default;
+//# sourceMappingURL=site/pagemenu/state.js.map

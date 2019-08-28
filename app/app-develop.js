@@ -32,6 +32,10 @@ let app = {
 	server: {
 		port: 8080
 	},
+	ssr: {
+        output: require("path").resolve(__dirname,"./../dist"),
+        urls: require("./src/menu.json").map(item => item.link)
+    },
 	hook: [
 		function (hooker) {
 			hooker.hook("beforePack", () => parser.output())

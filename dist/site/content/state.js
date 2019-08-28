@@ -1,1 +1,53 @@
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _dec,_dec2,_class,_adajs=require("adajs");function _applyDecoratedDescriptor(e,t,r,a,c){var o={};return Object.keys(a).forEach(function(e){o[e]=a[e]}),o.enumerable=!!o.enumerable,o.configurable=!!o.configurable,("value"in o||o.initializer)&&(o.writable=!0),o=r.slice().reverse().reduce(function(r,a){return a(e,t,r)||r},o),c&&void 0!==o.initializer&&(o.value=o.initializer?o.initializer.call(c):void 0,o.initializer=void 0),void 0===o.initializer&&(Object.defineProperty(e,t,o),o=null),o}let ContentService=(_dec=(0,_adajs.action)("setmenu"),_dec2=(0,_adajs.action)("getpage"),_applyDecoratedDescriptor((_class=class extends _adajs.Service{defaultData(){return{url:"",title:"",desc:"",commentId:"",close:!1,content:"",hash:"",menu:[]}}onupdate(e,t){return e.url=t.url,e.title=t.title,e.desc=t.desc,e.close=t.close,e.commentId=t.commentId,e.hash=t.hash,e}setMenu(e,t){e.menu=t}getPage(e){return console.log("==>",`${this.context.config.basePath}docs${e.url}?h=${e.hash}`),this.request.get(`${this.context.config.basePath}docs${e.url}?h=${e.hash}`).then(t=>{console.log(t),e.content=t}).catch(t=>{e.content=""})}}).prototype,"setMenu",[_dec],Object.getOwnPropertyDescriptor(_class.prototype,"setMenu"),_class.prototype),_applyDecoratedDescriptor(_class.prototype,"getPage",[_dec2],Object.getOwnPropertyDescriptor(_class.prototype,"getPage"),_class.prototype),_class);var _default=ContentService;exports.default=_default;
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _adajs = require("adajs");
+
+var _dec, _dec2, _class;
+
+function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) { var desc = {}; Object.keys(descriptor).forEach(function (key) { desc[key] = descriptor[key]; }); desc.enumerable = !!desc.enumerable; desc.configurable = !!desc.configurable; if ('value' in desc || desc.initializer) { desc.writable = true; } desc = decorators.slice().reverse().reduce(function (desc, decorator) { return decorator(target, property, desc) || desc; }, desc); if (context && desc.initializer !== void 0) { desc.value = desc.initializer ? desc.initializer.call(context) : void 0; desc.initializer = undefined; } if (desc.initializer === void 0) { Object.defineProperty(target, property, desc); desc = null; } return desc; }
+
+let ContentService = (_dec = (0, _adajs.action)("setmenu"), _dec2 = (0, _adajs.action)("getpage"), (_class = class ContentService extends _adajs.Service {
+  defaultData() {
+    return {
+      url: "",
+      title: "",
+      desc: "",
+      commentId: "",
+      close: false,
+      content: "",
+      hash: "",
+      menu: []
+    };
+  }
+
+  onupdate(current, data) {
+    current.url = data.url;
+    current.title = data.title;
+    current.desc = data.desc;
+    current.close = data.close;
+    current.commentId = data.commentId;
+    current.hash = data.hash;
+    return current;
+  }
+
+  setMenu(current, menu) {
+    current.menu = menu;
+  }
+
+  getPage(current) {
+    return this.request.get(`${this.context.config.basePath}docs${current.url}?h=${current.hash}`).then(content => {
+      current.content = content;
+    }).catch(e => {
+      current.content = "";
+    });
+  }
+
+}, (_applyDecoratedDescriptor(_class.prototype, "setMenu", [_dec], Object.getOwnPropertyDescriptor(_class.prototype, "setMenu"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "getPage", [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, "getPage"), _class.prototype)), _class));
+var _default = ContentService;
+exports.default = _default;
+//# sourceMappingURL=site/content/state.js.map

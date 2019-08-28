@@ -1,1 +1,19 @@
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var _dec,_class,_adajs=require("adajs"),_state=_interopRequireDefault(require("site/loading/state.js"));function _interopRequireDefault(e){return e&&e.__esModule?e:{default:e}}let Loading=(_dec=(0,_adajs.view)({className:"loading",template:"site/loading/template.html",style:"site/loading/style.scss",dataset:{service:_state.default},module:"site/loading/index.js"}))(_class=class extends _adajs.View{})||_class;var _default=Loading;exports.default=_default;
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _adajs = require("adajs");
+
+var _state = _interopRequireDefault(require("site/loading/state.js"));
+
+var _dec, _class;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+let Loading = (_dec = (0, _adajs.view)({  className: "loading",  template:"site/loading/template.html",  style:"site/loading/style.scss",  dataset: {    service: _state.default  },module:"site/loading/index.js"}), _dec(_class = class Loading extends _adajs.View {}) || _class);
+var _default = Loading;
+exports.default = _default;
+//# sourceMappingURL=site/loading/index.js.map

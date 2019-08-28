@@ -9,9 +9,10 @@
   },
   "scripts": {
     "ada": "node ./node_modules/.bin/adajs",
-    "packer": "./node_modules/.bin/ada-pack",
-    "parse": "node ./doc/parser/parsedocs",
-    "ssr": "node ./doc/ssr"
+    "dev": "./node_modules/.bin/ada-pack dev",
+    "publish": "./node_modules/.bin/ada-pack publish",
+    "ssr": "./node_modules/.bin/ada-pack ssr",
+    "parse": "node ./doc/parser/parsedocs"
   },
   "repository": {
     "type": "git",

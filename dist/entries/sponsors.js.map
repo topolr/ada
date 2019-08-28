@@ -1,0 +1,1 @@
+{"version":3,"sources":["/entries/sponsors.js"],"names":["SponsorsWrapper","Sponsors"],"mappings":";;;;;;;AAAA;;;;AAEA,MAAMA,eAAN,SAA8BC,iBAA9B,CAAuC;;eAGxBD,e","sourcesContent":["import Sponsors from \"./../site/sponsors\";\n\nclass SponsorsWrapper extends Sponsors {\n}\n\nexport default SponsorsWrapper;"]}

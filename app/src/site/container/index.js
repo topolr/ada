@@ -15,7 +15,6 @@ import Comment from "./../../lib/comment";
 })
 class Container extends BondViewGroup {
     oncreated() {
-        console.log('======>xxx');
         let comment = new Comment(this.context);
         this.className.add("close");
         if (window.location.href.indexOf("code=") !== -1) {
