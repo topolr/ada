@@ -1,8 +1,8 @@
 class Session {
     constructor(context) {
         this.context = context;
-        this.client_id = "4b5042acc1e0f611dcbb";
-        this.client_secret = "4e8d2f4341b5a5e29e7b4b4b04d8b2ab03e837b8";
+        this.client_id = "0ea02b5fbb12611bee89";
+        this.client_secret = "0614d360a2b37b0df55fcb6ae6eee422fa182ddd";
         this.scope = "public_repo";
         this.resp = "topolr/ada";
         this.token = undefined;
@@ -120,12 +120,12 @@ class Comment {
     }
 
     getIssueCommentsById(id) {
-        return this.context.request.get(`https://api.github.com/repos/${this.session.resp}/issues/${id}/comments?client_id=4b5042acc1e0f611dcbb&client_secret=4e8d2f4341b5a5e29e7b4b4b04d8b2ab03e837b8&t=${new Date().getTime()}`);
+        return this.context.request.get(`https://api.github.com/repos/${this.session.resp}/issues/${id}/comments?client_id=0ea02b5fbb12611bee89&client_secret=0614d360a2b37b0df55fcb6ae6eee422fa182ddd&t=${new Date().getTime()}`);
     }
 
     getMarkdownContent(content) {
         return this.context.request.fetch({
-            url:`https://api.github.com/markdown?client_id=4b5042acc1e0f611dcbb&client_secret=4e8d2f4341b5a5e29e7b4b4b04d8b2ab03e837b8`,
+            url:`https://api.github.com/markdown?client_id=0ea02b5fbb12611bee89&client_secret=0614d360a2b37b0df55fcb6ae6eee422fa182ddd`,
             method:"post",
             body: JSON.stringify({
                 "text": content || "",
