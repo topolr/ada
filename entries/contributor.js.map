@@ -1,1 +1,0 @@
-{"version":3,"sources":["/entries/contributor.js"],"names":["ContributorWrapper","Contributor"],"mappings":";;;;;;;AAAA;;;;AAEA,MAAMA,kBAAN,SAAiCC,oBAAjC,CAA6C;;eAG9BD,kB","sourcesContent":["import Contributor from \"./../site/contributor\";\n\nclass ContributorWrapper extends Contributor {\n}\n\nexport default ContributorWrapper;"]}
