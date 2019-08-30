@@ -1285,6 +1285,10 @@ class MapDom {
         this.classList = new ClassList(this, className);
     }
 
+    get element() {
+        retutn this._dom;
+    }
+
     getAttributes() {
         return this._container._cross.getAttributeByPath(MapDom.getElementPath(this._container._container, this._dom));
     }
@@ -1299,10 +1303,6 @@ class MapDom {
 
     isListenedEvent(type) {
         return this.getEventInfo()[type] !== undefined;
-    }
-
-    element() {
-        return this._dom;
     }
 
     getElement() {
