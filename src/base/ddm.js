@@ -1286,7 +1286,7 @@ class MapDom {
     }
 
     get element() {
-        retutn this._dom;
+        return this._dom;
     }
 
     getAttributes() {

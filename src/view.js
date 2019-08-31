@@ -436,7 +436,7 @@ class BaseView {
         if (!this.isRemoved()) {
             return this.getDDM().modules().reduce((a, item) => {
                 return a.then(() => {
-                    let cache = item.element()[VIEWTAG],
+                    let cache = item.element[VIEWTAG],
                         props = item.getAttributes(),
                         clazz = props["type"],
                         parameter = props["parameter"],
@@ -452,7 +452,7 @@ class BaseView {
                             return factory.getViewInstance({
                                 viewClass: clazz,
                                 parent: this,
-                                dom: item.element(),
+                                dom: item.element,
                                 name,
                                 useProps,
                                 context: this.context,
@@ -495,7 +495,7 @@ class BaseView {
                 if (!this.isRemoved()) {
                     this[CHILDRENTAG] = this.getDDM().modules().map(item => {
                         let props = item.getAttributes();
-                        let target = item.element()[VIEWTAG];
+                        let target = item.element[VIEWTAG];
                         target[USEPROPS] = props["useProps"] ? [...props["useProps"]] : [];
                         return target;
                     }).concat(this[CHILDRENTAG].filter(child => child.isOuterView()));
