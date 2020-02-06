@@ -1,7 +1,7 @@
 let Tag = require("../local/tag");
 let DDMVariables = require("../local/ddm");
 let Metadata = require("./../../lib/metadata");
-let { ROOTELEMENTNAME, VIEWTAG, DATASET, DATASETDATA, DDMTAG, CHILDRENTAG } = require("./../../util/const");
+let { VIEWTAG } = require("./../../util/const");
 let { parseTemplate, parseStyle, excuteStyle, setProp } = require("./../../util/helper");
 let env = require("./../../env");
 
@@ -164,8 +164,8 @@ class BaseContext {
 						return Promise.reject();
 					}
 				});
-			}).then(() => {
-				return this._invokeHook("bootdone");
+			}).then((view) => {
+				return this._invokeHook("bootdone").then(() => view);
 			});
 			return this._bootFlow;
 		});
@@ -187,6 +187,10 @@ class BaseContext {
 
 	get loader() {
 		return this._loader;
+	}
+
+	get name() {
+		return this._config.name;
 	}
 
 	get config() {

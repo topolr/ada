@@ -1,10 +1,10 @@
 let Metadata = require("../lib/metadata");
 let factory = require("./../util/factory");
-let {excuteStyle, getMappedPath, isFunction, parseStyle, queue, parseTemplate, setProp} = require("../util/helper");
-let {ROOTELEMENTNAME, VIEWTAG} = require("../util/const");
-let {DATASETRANSACTION, DATASETRANSACTIONSTATE, PREREMOVED, DDMTAG, VIEWINFO, BINDERS} = require("./../util/const");
-let {TransactDataSet} = require("./../dataset");
-let {DDM} = require("./../base/ddm");
+let { excuteStyle, getMappedPath, isFunction, parseStyle, queue, parseTemplate, setProp } = require("../util/helper");
+let { ROOTELEMENTNAME, VIEWTAG } = require("../util/const");
+let { DATASETRANSACTION, DATASETRANSACTIONSTATE, PREREMOVED, DDMTAG, VIEWINFO, BINDERS } = require("./../util/const");
+let { TransactDataSet } = require("./../dataset");
+let { DDM } = require("./../base/ddm");
 
 class ExtendModule {
 	constructor(context) {
@@ -61,7 +61,7 @@ class ExtendModule {
 				return this.getStateTreeFromView(child);
 			});
 		}
-		return {name, state, children, isTransactDataSet, history, commits};
+		return { name, state, children, isTransactDataSet, history, commits };
 	}
 
 	injectStateTreeToView(view, stateTree) {
@@ -121,7 +121,7 @@ class ExtendModule {
 		let r = [];
 		[...context.document.querySelectorAll("[data-module]")].forEach(element => {
 			let view = element[VIEWTAG];
-			if (view instanceof type) {
+			if (view instanceof type && view.context.name === context.name) {
 				r.push(view);
 			}
 		});
@@ -182,12 +182,12 @@ class ExtendModule {
 	getFutureChangedInfo(moduleNames) {
 		let context = this.context;
 		let r = moduleNames.map(file => {
-			return {file: file, clazz: this.context._loader.moduleLoader.get(file)};
+			return { file: file, clazz: this.context._loader.moduleLoader.get(file) };
 		});
 		let changeInfos = [], ismainentry = false;
 		[...context.document.querySelectorAll("[data-module]")].forEach(element => {
 			let module = element[VIEWTAG];
-			if (module) {
+			if (module && module.context.name === context.name) {
 				for (let i = 0; i < r.length; i++) {
 					let info = r[i];
 					if (isFunction(info.clazz) && module instanceof info.clazz) {
@@ -270,24 +270,27 @@ class ExtendModule {
 
 	resetViewTemplate(view) {
 		if (!view.isRemoved()) {
-			let clazz = view.constructor, context = this.context,
-				info = {...Metadata.getMetadata("view", clazz.prototype)};
-
-			if (!info.scope) {
-				info.scope = "local";
-			}
+			let clazz = view.constructor, context = this.context;
+			let info = { ...Metadata.getMetadata("view", clazz.prototype) };
+			info.className = info.className ? `${context.name}-${info.className}` : info.className;
 			let ps = Promise.resolve();
 			if (info.template) {
-				ps = ps.then(() => context.loader.loadSource(info.template).then(code => {
-					info.template = info.scope === "local" ? parseTemplate(code, info.className) : code;
-				}));
+				let code = info.template;
+				if (code.path) {
+					ps = ps.then(() => context.loader.loadSource(info.template.path));
+				} else {
+					ps = ps.then(() => code);
+				}
+				ps = ps.then(code => {
+					info.template = parseTemplate(code, info.className);
+				});
 			}
 			return ps.then(() => {
 				setProp(view, DDMTAG, new DDM({
 					id: view.getId(),
 					container: view.getDDMContainer(),
 					templateStr: info.template || "",
-					binders: ({method, parameters}) => {
+					binders: ({ method, parameters }) => {
 						let info = view[BINDERS] || {};
 						let _method = info[method];
 						if (_method && view[_method]) {
@@ -303,33 +306,48 @@ class ExtendModule {
 				}));
 				return view.rerender();
 			});
-
 		} else {
 			return Promise.resolve();
 		}
 	}
 
 	resetViewStyle(view) {
+		let context = this.context;
 		let info = Metadata.getMetadata("view", view.constructor.prototype);
 		if (!info) {
 			info = Metadata.getMetadata("root", view.constructor.prototype);
 		}
+		info.className = info.className ? `${context.name}-${info.className}` : info.className;
 		let ps = Promise.resolve();
 		if (info.style) {
-			let id = `${info.style.replace(/\//g, "-")}:${info.className}`;
-			let current = view.context.document.getElementById(id);
+			let id = `${context.name}-${info.module.replace(/\//g, "-")}:${info.className}`;
+			let current = context.document.getElementById(id);
 			if (current) {
 				current.parentNode.removeChild(current);
 			}
-			ps = ps.then(() => this.context._loader.loadSource(info.style).then(code => {
-				excuteStyle(parseStyle(code, info.className), id, this._context);
-			}));
+			let code = info.style;
+			if (code.path) {
+				ps = ps.then(() => context.loader.loadSource(info.style.path));
+			} else {
+				ps = ps.then(() => code);
+			}
+			ps = ps.then(code => {
+				excuteStyle(parseStyle(code, info.className), `${context.name}-${info.module.replace(/\//g, "-")}:${info.className}`, this);
+			});
+			// let id = `${info.style.replace(/\//g, "-")}:${info.className}`;
+			// let current = view.context.document.getElementById(id);
+			// if (current) {
+			// 	current.parentNode.removeChild(current);
+			// }
+			// ps = ps.then(() => this.context._loader.loadSource(info.style).then(code => {
+			// 	excuteStyle(parseStyle(code, info.className), id, this._context);
+			// }));
 		}
 		return ps;
 	}
 
-	resetView({view, clazz, element, isroot}) {
-		let stateTree = null;
+	resetView({ view, clazz, element, isroot }) {
+		let stateTree = null, context = this.context;
 		if (!view.isRemoved()) {
 			stateTree = this.getStateTreeFromView(view);
 			this.setViewPreremoveState(view);
@@ -342,13 +360,13 @@ class ExtendModule {
 			}
 			view.getElement().innerHTML = "";
 		}
-		return factory.getViewInstance({
+		return context.getViewInstance({
 			viewClass: clazz,
 			parent: view.getParent(),
 			dom: element,
 			name: view.getName(),
 			tag: isroot ? "root" : "view",
-			context: this.context
+			context
 		}).then(newview => {
 			if (!view.isRemoved()) {
 				let parent = view.getParent();
@@ -363,14 +381,16 @@ class ExtendModule {
 				newview.oncreated();
 				return newview._render().then(() => {
 					view._clean();
-					return Promise.resolve().then(() => newview.onready()).then(() => {
-						if (stateTree) {
-							console.log("%c- Try to reset module state...", "color:#3D78A7;font-weight:bold");
-							return this.injectStateTreeToView(newview, stateTree).then(() => {
-								console.log("%c- Reset module state done", "color:#3D78A7;font-weight:bold");
-							});
-						}
-					});
+					if (!newview.isRemoved()) {
+						return Promise.resolve().then(() => newview.onready()).then(() => {
+							if (stateTree) {
+								console.log("%c- Try to reset module state...", "color:#3D78A7;font-weight:bold");
+								return this.injectStateTreeToView(newview, stateTree).then(() => {
+									console.log("%c- Reset module state done", "color:#3D78A7;font-weight:bold");
+								});
+							}
+						});
+					}
 				});
 			}
 		});
@@ -452,7 +472,7 @@ class ExtendModule {
 				info[key] = `0${info[key]}`;
 			}
 		});
-		console.group(`%c[Ada] HMR ${info.year}-${info.month}-${info.day} ${info.hour}:${info.minus}:${info.second}`, "font-weight:bold");
+		console.group(`%c[Ada] HMR [${this.context.name}] ${info.year}-${info.month}-${info.day} ${info.hour}:${info.minus}:${info.second}`, "font-weight:bold");
 		let temps = [], styles = [], modules = [];
 		let ps = Promise.resolve([]), outmap = [];
 		files = files.filter(file => {

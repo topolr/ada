@@ -12,6 +12,9 @@ const Manager = {
         this._contextClass = contextClass;
         this._context = new contextClass();
     },
+    get context() {
+        return this._context;
+    },
     _cleanView(target) {
         if (target.querySelectorAll && !target.parentNode) {
             return [target, ...target.querySelectorAll("[data-module]")].reverse().reduce((a, module) => {
@@ -166,5 +169,4 @@ const Manager = {
         });
     }
 };
-
 module.exports = Manager;

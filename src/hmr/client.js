@@ -19,7 +19,6 @@ let client = {
                     this.tryTime = 0;
                     try {
                         let data = JSON.parse(e.data), log = data.log;
-                        console.log(data);
                         let app = data.app;
                         let _context = manager.getContext(app);
                         if (_context) {
@@ -31,7 +30,7 @@ let client = {
                                         updater.refresh(_context, data.files, data.map).then(() => {
                                             bar.actionDone();
                                         }).catch((e) => {
-                                            console.log(1, e);
+                                            console.error(e);
                                             // context.window.location.reload();
                                         });
                                     } else if (data.type !== "start") {
@@ -48,7 +47,7 @@ let client = {
                             }
                         }
                     } catch (e) {
-                        console.log(2, e);
+                        console.error(e);
                         // context.window.location.reload();
                     }
                 });

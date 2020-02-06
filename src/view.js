@@ -449,29 +449,31 @@ class BaseView {
                             ps = ps.then(() => cache._remove());
                         }
                         ps = ps.then(() => {
-                            return this.context.getViewInstance({
-                                viewClass: clazz,
-                                parent: this,
-                                dom: item.element,
-                                name,
-                                useProps,
-                                context: this.context,
-                                id
-                            }).then(_view => {
-                                if (!_view.isRemoved()) {
-                                    this.context.logger.group(`CREATE CHILD[${_view.getClassName() || ''}]`);
-                                    return Promise.resolve().then(() => _view.oncreated()).then(() => {
-                                        return _view.update(parameter).then(() => {
-                                            if (this.onchildadded) {
-                                                return this.onchildadded(_view);
-                                            }
-                                        }).then(() => _view.onready()).then(() => {
-                                            this.context.logger.groupEnd();
-                                            return _view;
+                            if (!this.isRemoved()) {
+                                return this.context.getViewInstance({
+                                    viewClass: clazz,
+                                    parent: this,
+                                    dom: item.element,
+                                    name,
+                                    useProps,
+                                    context: this.context,
+                                    id
+                                }).then(_view => {
+                                    if (!_view.isRemoved()) {
+                                        _view.context.logger.group(`CREATE CHILD[${_view.getClassName() || ''}]`);
+                                        return Promise.resolve().then(() => _view.oncreated()).then(() => {
+                                            return _view.update(parameter).then(() => {
+                                                if (this.onchildadded) {
+                                                    return this.onchildadded(_view);
+                                                }
+                                            }).then(() => _view.onready()).then(() => {
+                                                _view.context.logger.groupEnd();
+                                                return _view;
+                                            });
                                         });
-                                    });
-                                }
-                            });
+                                    }
+                                });
+                            }
                         });
                         return ps;
                     } else {
@@ -1058,8 +1060,18 @@ class BondViewGroup extends ViewGroup {
     }
 
     addChildApp({ name, container }) {
-        let context = manager.getContext(name);
-        return context.boot({ container });
+        if (!this.isRemoved()) {
+            let context = manager.getContext(name);
+            return context.boot({ container }).then(view => {
+                if (!view.isRemoved()) {
+                    setProp(view, OUTERVIEW, true);
+                    this.getChildren().push(view);
+                    return Promise.resolve().then(() => this.onchildadded(view)).then(() => view);
+                }
+            });
+        } else {
+            return Promise.reject(new ViewHadRemovedError('view had removed,can not add child'));
+        }
     }
 
     removeChild(view) {
