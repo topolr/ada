@@ -1,4 +1,4 @@
-let {DATASET, DATASETSERVICE} = require("./const");
+let { DATASET, DATASETSERVICE } = require("./const");
 let Passable = require("../passable");
 let env = require("./../env");
 
@@ -190,7 +190,9 @@ function parseTemplate(code, className) {
 }
 
 function parseStyle(code, className) {
-	let str = "", _r = [], _t = [];
+	let str = "", _r = [], _t = [], f = className.split('-');
+	f.shift();
+	let realClassName = f.join('-');
 	code.split(STYLEREG).forEach(_a => {
 		let _b = _a.trim();
 		if (_b.indexOf("@") !== -1) {
@@ -211,10 +213,10 @@ function parseStyle(code, className) {
 			_b = _b.trim();
 			if ((i + 1) % 2 !== 0) {
 				r.push(_b.replace(STYLEREG_B, (str) => {
-					if (str.substring(1).trim() !== className) {
+					if (str.substring(1).trim() !== realClassName) {
 						return `.${className}-${str.substring(1)}`;
 					} else {
-						return str;
+						return `.${className}`;
 					}
 				}));
 			} else {
@@ -348,8 +350,8 @@ function getDataSetFromParent(_view, info) {
 
 function isPropsChange(changeprops, useprops) {
 	if (changeprops && useprops && changeprops.length > 0 && useprops.length > 0) {
-		return changeprops.some(_changed=>{
-			return useprops.some(item=>(item.indexOf(_changed) === 0 || _changed.indexOf(item) === 0 || _changed === item));
+		return changeprops.some(_changed => {
+			return useprops.some(item => (item.indexOf(_changed) === 0 || _changed.indexOf(item) === 0 || _changed === item));
 		});
 	} else {
 		return !(changeprops.length === 0 || useprops.length === 0);
@@ -358,8 +360,8 @@ function isPropsChange(changeprops, useprops) {
 
 function isPropsChangeEqual(changeprops, useprops) {
 	if (changeprops && useprops && changeprops.length > 0 && useprops.length > 0) {
-		return changeprops.some(changed=>{
-			return useprops.indexOf(changed)!==-1;
+		return changeprops.some(changed => {
+			return useprops.indexOf(changed) !== -1;
 		});
 	} else {
 		return !(changeprops.length === 0 || useprops.length === 0);

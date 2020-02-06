@@ -32,28 +32,13 @@ class DDMVariables {
                 return content;
             }
         };
-        this._defaultFunctionNames = ["classname"];
-        this._defaultFunctionFns = [(data, sets) => {
-            if (Array.isArray(sets)) {
-                let result = [sets.shift()];
-                sets.forEach(set => {
-                    if (data[set] === true) {
-                        result.push(set);
-                    }
-                });
-                return result.join(" ");
-            } else {
-                let result = [];
-                if (sets.def) {
-                    result.push(sets.def);
-                }
-                Reflect.ownKeys(sets).forEach(set => {
-                    if (data[set] === true) {
-                        result.push(set);
-                    }
-                });
-                return result.join(" ");
-            }
+        this._defaultFunctionNames = ["join"];
+        this._defaultFunctionFns = [(...args) => {
+            return args
+                .filter(a => typeof a === 'string')
+                .map(a => a.trim())
+                .filter(a => a !== '')
+                .join(' ');
         }];
     }
 

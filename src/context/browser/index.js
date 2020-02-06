@@ -6,8 +6,8 @@ let BrowserRequest = require("./req");
 let RequestManager = require("./../local/request");
 
 class BrowserContext extends BaseContext {
-	constructor() {
-		super();
+	constructor(a) {
+		super(a);
 		this._window = {};
 		if (isBrowser()) {
 			this._window = window;

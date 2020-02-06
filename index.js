@@ -1,6 +1,5 @@
 let { BondViewGroup, StaticViewGroup, View, ViewConnector, ViewGroup } = require("./src/view");
 let { DataSet, Service, TransactDataSet } = require("./src/dataset");
-let factory = require("./src/util/factory");
 let { Dispatcher } = require("./src/dispatcher");
 let Passable = require("./src/passable");
 let { view, root, action, handler, subscribe, compute, binder } = require("./src/annotation");
@@ -22,29 +21,29 @@ let {
 } = require("./src/util/helper");
 let BrowserContext = require("./src/context/browser");
 let env = require("./src/env");
+let manager = require("./src/manager");
 
 if (isBrowser()) {
-    let context = new BrowserContext();
-    context.window.Ada = {
-        modules: context.loader.moduleLoader,
+    manager._init(BrowserContext);
+    manager._context.window.Ada = {
+        // modules: context.loader.moduleLoader,
         init(initer) {
-            factory.init(context, initer);
+            // factory.init(context, initer);
         },
-        boot: function (ops) {
-            ops.context = context;
-            factory.boot(ops);
+        boot(ops) {
+            manager.boot(ops);
         },
-        unpack(info) {
-            context.loader.decompress(info);
+        unpack(appName, info) {
+            manager.unpack(appName, info);
         },
         installModule(name, module) {
-            context.loader.moduleLoader.set(name, module);
+            manager.installModule(name, module);
         },
         recover(info) {
-            factory.recover(context, info);
+            manager.recover(info);
         }
     };
-    Dispatcher.request = context.request;
+    // Dispatcher.request = context.request;
 }
 
 module.exports = {

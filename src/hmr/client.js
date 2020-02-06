@@ -1,13 +1,15 @@
 let updater = require("./updater");
 let bar = require("./ui/controlbar");
 let teminal = require("./ui/teminal");
+let manager = require("./../manager");
 
 const tryTime = 100;
 
 let client = {
     state: true,
     tryTime: tryTime,
-    start(context) {
+    start() {
+        let context = manager._context;
         if (context.window.EventSource) {
             context.window.addEventListener("load", () => {
                 bar.start(context);
@@ -17,16 +19,20 @@ let client = {
                     this.tryTime = 0;
                     try {
                         let data = JSON.parse(e.data), log = data.log;
-                        if (!context.config.name || data.name === context.config.name) {
+                        console.log(data);
+                        let app = data.app;
+                        let _context = manager.getContext(app);
+                        if (_context) {
                             if (log && log.length === 0) {
                                 teminal.hide();
-                                if (bar.getState(context)) {
+                                if (bar.getState(_context)) {
                                     if (data.type === "edit") {
                                         bar.actionStart();
-                                        updater.refresh(context, data.files, data.map).then(() => {
+                                        updater.refresh(_context, data.files, data.map).then(() => {
                                             bar.actionDone();
-                                        }).catch(() => {
-                                            context.window.location.reload();
+                                        }).catch((e) => {
+                                            console.log(1, e);
+                                            // context.window.location.reload();
                                         });
                                     } else if (data.type !== "start") {
                                         context.window.location.reload();
@@ -42,7 +48,8 @@ let client = {
                             }
                         }
                     } catch (e) {
-                        context.window.location.reload();
+                        console.log(2, e);
+                        // context.window.location.reload();
                     }
                 });
                 source.addEventListener('error', (e) => {
@@ -72,7 +79,7 @@ let client = {
                         bar.start(context);
                         teminal.init();
                     }
-                }).observe(context.document, {childList: true, subtree: true});
+                }).observe(context.document, { childList: true, subtree: true });
             } else {
                 context.document.body.addEventListener("DOMNodeRemoved", (e) => {
                     let target = e.target, has = false;

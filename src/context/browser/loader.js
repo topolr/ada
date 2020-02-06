@@ -1,5 +1,5 @@
-let {getMappedPath, isFunction, setProp} = require("../../util/helper");
-let {MODULEPATH} = require("../../util/const");
+let { getMappedPath, isFunction, setProp } = require("../../util/helper");
+let { MODULEPATH } = require("../../util/const");
 
 class EmptyPersistence {
     constructor(context) {
@@ -81,8 +81,8 @@ class DatabasePersistence {
                     if (db.objectStoreNames.contains(this.info.store)) {
                         db.deleteObjectStore(this.info.store);
                     }
-                    let store = db.createObjectStore(this.info.store, {keyPath: this.info.key});
-                    store.put({name: this.info.value, data: {}});
+                    let store = db.createObjectStore(this.info.store, { keyPath: this.info.key });
+                    store.put({ name: this.info.value, data: {} });
                 };
                 request.onsuccess = () => {
                     this.db = request.result;
@@ -167,15 +167,22 @@ class ModuleLoader {
         if (suffix === "js") {
             source = code;
         } else if (suffix === "css" || suffix === "scss" || suffix === "less") {
-            source = `var styles={_linkElement:null,active:function(){var et=document.getElementById("${path}");if(!et){var _a = document.createElement("style");_a.setAttribute("media", "screen");_a.setAttribute("type", "text/css");_a.setAttribute("id","${path.replace(/\//g, "-")}");_a.appendChild(document.createTextNode(${JSON.stringify(code)}));styles._linkElement=_a;document.getElementsByTagName("head")[0].appendChild(_a);}else{et.innerText="";et.appendChild(document.createTextNode(${JSON.stringify(code)}));}}};if (/complete|loaded|interactive/.test(window.document.readyState)) {styles.active();} else {window.document.addEventListener('DOMContentLoaded', function () {styles.active();}, false);}module.exports={isReady:function(){return styles._linkElement!==null;},getElement:function(){return styles._linkElement;},remove:function(){if(styles._linkElement){styles._linkElement.parentNode.removeChild(styles._linkElement);}}};`;
+            source = `module.exports={
+    style:${JSON.stringify(code)},
+    active:function(){var styles={_linkElement:null,active:function(){var et=document.getElementById("${path}");if(!et){var _a = document.createElement("style");_a.setAttribute("media", "screen");_a.setAttribute("type", "text/css");_a.setAttribute("id","${path.replace(/\//g, "-")}");_a.appendChild(document.createTextNode(${JSON.stringify(code)}));styles._linkElement=_a;document.getElementsByTagName("head")[0].appendChild(_a);}else{et.innerText="";et.appendChild(document.createTextNode(${JSON.stringify(code)}));}}};if(/complete|loaded|interactive/.test(window.document.readyState)){styles.active();}else{window.document.addEventListener('DOMContentLoaded', function(){styles.active();},false);}},
+    isReady:function(){return styles._linkElement!==null;},
+    getElement:function(){return styles._linkElement;},
+    remove:function(){if(styles._linkElement){styles._linkElement.parentNode.removeChild(styles._linkElement);}}};`;
         } else if (suffix === "json") {
             source = `module.exports=${code}`;
-        } else if (suffix === "html" || suffix === "text") {
-            source = `module.exports=JSON.stringify(${code})`;
+        } else if (suffix === "html") {
+            source = `module.exports={template:${JSON.stringify(code)}}`;
+        } else if (suffix === 'text') {
+            source = `module.exports=${JSON.stringify(code)}`;
         } else {
             source = code;
         }
-        let info = {path, code: source};
+        let info = { path, code: source };
         this._context._invokeSyncHook("sourceexcute", info);
         return new Function("module", "exports", "require", "imports", "babelHelpers", "window", "document", info.code);
     }
@@ -187,13 +194,13 @@ class ModuleLoader {
             paths.push(_path);
             return `require("${_path}")`;
         });
-        return {code, paths};
+        return { code, paths };
     }
 
     getModuleDependenceMap(path) {
         return this._loader.get(path).then(source => {
-            let {paths, code: moduleCode} = this.getModuleDependenceInfo(path, source);
-            let result = {[path]: moduleCode};
+            let { paths, code: moduleCode } = this.getModuleDependenceInfo(path, source);
+            let result = { [path]: moduleCode };
             let works = [];
             paths.map(path => {
                 if (!this.installed[path]) {
@@ -304,7 +311,7 @@ class ModuleLoader {
     }
 
     set(path, _exports) {
-        this.installed[path] = {exports: _exports};
+        this.installed[path] = { exports: _exports };
         return this;
     }
 }
@@ -317,7 +324,7 @@ class SourceQueue {
     }
 
     add(path, fn, error) {
-        this.tasks.push({path, fn, error});
+        this.tasks.push({ path, fn, error });
         this.run();
     }
 
@@ -424,7 +431,7 @@ class Loader {
     }
 
     getSourceCode(path) {
-        return this.context.request.origin({url: path, method: 'get'}).promise.then(info => info.data);
+        return this.context.request.origin({ url: path, method: 'get' }).promise.then(info => info.data);
     }
 
     getRealPath(path, ispackage = false) {
@@ -460,7 +467,7 @@ class Loader {
             });
             if (r > 1) {
                 return this.getSourceCode(`${this.getRealPath(file + ".js", true)}`).then(code => {
-                    let info = JSON.parse(code.substring(11, code.length - 1));
+                    let info = JSON.parse(code.substring(code.indexOf(",")+1, code.length - 1));
                     Object.assign(this.source, info);
                     return this.persistence.saveAll(this.source).then(() => {
                         return this.source[path].code;
@@ -468,14 +475,14 @@ class Loader {
                 });
             } else {
                 return this.getSourceCode(`${this.getRealPath(filepath)}`).then(code => {
-                    this.source[path] = {code, hash: rhash};
+                    this.source[path] = { code, hash: rhash };
                     return this.persistence.saveAll(this.source).then(() => code);
                 });
             }
         } else {
             if (rhash) {
                 return this.getSourceCode(`${this.getRealPath(filepath)}`).then(code => {
-                    this.source[path] = {code, hash: rhash};
+                    this.source[path] = { code, hash: rhash };
                     return this.persistence.saveAll(this.source).then(() => code);
                 });
             } else {

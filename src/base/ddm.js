@@ -14,6 +14,7 @@ const REGS = {
     f: />[\s]+</g,
     g: /<%[\s\S]*%>/,
     h: /\<\!\-\-[\s\S]*?\-\-\>/g,
+    j:/[\s]+\/\>/g,
     startdot: /&lt;/g,
     enddot: /&gt;/g,
     isDoctype: /\<\!DOCTYPE[\s\S]*?\>/g,
@@ -282,6 +283,7 @@ let Parser = {
             .replace(REGS.h, "")
             .replace(REGS.f, "><")
             .replace(REGS.i, "")
+            .replace(REGS.j, "/>")
             .replace(REGS.k, "")
             .replace(REGS.l, "");
         [...SelfCloseTags, ...Reflect.ownKeys(tags).filter(name => {

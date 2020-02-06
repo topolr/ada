@@ -24,24 +24,25 @@ let {
 } = require("./src/util/helper");
 let BrowserContext = require("./src/context/browser");
 let env = require("./src/env");
+let manager = require("./src/manager");
 
 if (isBrowser()) {
-    let context = new BrowserContext();
+    // let context = new BrowserContext();
     env.develop = true;
-    context.window.Ada = {
-        modules: context.loader.moduleLoader,
+    manager._init(BrowserContext);
+    manager._context.window.Ada = {
+        // modules: context.loader.moduleLoader,
         init(initer) {
-            factory.init(context, initer);
+            // factory.init(context, initer);
         },
-        boot: function (ops) {
-            ops.context = context;
-            factory.boot(ops);
+        boot(ops) {
+            manager.boot(ops);
         },
-        unpack(info) {
-            context.loader.decompress(info);
+        unpack(appName, info) {
+            manager.unpack(appName, info);
         },
         installModule(name, module) {
-            context.loader.moduleLoader.set(name, module);
+            manager.installModule(name, module);
         },
         view(dom) {
             let target = null;
@@ -114,19 +115,19 @@ if (isBrowser()) {
         },
         client,
         recover(info) {
-            factory.recover(context, info);
+            manager.recover(info);
         },
         startLogger() {
-            context.logger.on = true;
+            manager.startLogger();
             return "Logger Started";
         },
         stopLogger() {
-            context.logger.on = false;
+            manager.stopLogger();
             return "Logger Stopped";
         }
     };
-    client.client.start(context);
-    Dispatcher.request = context.request;
+    client.client.start();
+    // Dispatcher.request = context.request;
 }
 
 module.exports = {

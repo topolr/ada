@@ -20,19 +20,28 @@ let factory = {
     },
     getViewInstance({ viewClass, parent, dom, name = "", tag = "view", useProps = [], context = null, id }) {
         let info = Metadata.getMetadataExtends(tag, viewClass.prototype);
-        if (!info.scope) {
-            info.scope = "local";
-        }
         let ps = Promise.resolve();
         if (info.template) {
-            ps = ps.then(() => context.loader.loadSource(info.template).then(code => {
-                info.template = info.scope === "local" ? parseTemplate(code, info.className) : code;
-            }));
+            let code = info.template;
+            if (code.path) {
+                ps = ps.then(() => context.loader.loadSource(info.template.path));
+            } else {
+                ps = ps.then(() => code);
+            }
+            ps = ps.then(code => {
+                info.template = parseTemplate(code, info.className);
+            });
         }
         if (info.style) {
-            ps = ps.then(() => context.loader.loadSource(info.style).then(code => {
-                excuteStyle(info.scope === "local" ? parseStyle(code, info.className) : code, `${info.style.replace(/\//g, "-")}:${info.className}`, context);
-            }));
+            let code = info.style;
+            if (code.path) {
+                ps = ps.then(() => context.loader.loadSource(info.style.path));
+            } else {
+                ps = ps.then(() => code);
+            }
+            ps = ps.then(code => {
+                excuteStyle(parseStyle(code, info.className), `${info.module.replace(/\//g, "-")}:${info.className}`, context);
+            });
         }
         return ps.then(() => {
             if (info.className) {

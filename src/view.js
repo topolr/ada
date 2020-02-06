@@ -27,10 +27,10 @@ let {
     CONTEXT,
     OBSERVERS
 } = require("./util/const");
-let factory = require("./util/factory");
 let { DataSet, DataSetHelper } = require("./dataset");
 let Collector = require("./base/collector");
 let { ViewHadRemovedError } = require("./util/error");
+let manager = require("./manager");
 
 const macros = {
     module({ bodyStr, props, events, attrs }) {
@@ -65,7 +65,7 @@ function addChild(type = null, { name = "", parameter = {}, container = null, at
             throw Error("[ada] BondViewGroup can not append child in the DDM container element");
         }
         container.appendChild(_dom);
-        return factory.getViewInstance({
+        return parent.context.getViewInstance({
             viewClass: type,
             parent,
             name,
@@ -449,7 +449,7 @@ class BaseView {
                             ps = ps.then(() => cache._remove());
                         }
                         ps = ps.then(() => {
-                            return factory.getViewInstance({
+                            return this.context.getViewInstance({
                                 viewClass: clazz,
                                 parent: this,
                                 dom: item.element,
@@ -650,7 +650,8 @@ class ViewConnector extends BaseView {
             state: this.getCurrentState(),
             id: this.getId(),
             name: this.getName(),
-            connector: true
+            connector: true,
+            app: this.context.config.name
         }
     }
 
@@ -779,7 +780,8 @@ class View extends BaseView {
             useProps: this[USEPROPS],
             out: this.isOuterView(),
             module: this[VIEWINFO].module,
-            connector: false
+            connector: false,
+            app: this.context.config.name
         }
     }
 
@@ -894,7 +896,8 @@ class ViewGroup extends View {
             connector: false,
             children: this.getChildren().map(child => {
                 return child.getSnapshot();
-            })
+            }),
+            app: this.context.config.name
         };
     }
 
@@ -1052,6 +1055,11 @@ class BondViewGroup extends ViewGroup {
 
     addChild(type = null, { name = "", parameter = {}, container = null, attrs = {} } = {}) {
         return addChild(type, arguments[1], this, true);
+    }
+
+    addChildApp({ name, container }) {
+        let context = manager.getContext(name);
+        return context.boot({ container });
     }
 
     removeChild(view) {

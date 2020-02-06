@@ -5,8 +5,8 @@ let RequestManager = require("./../local/request");
 let ServerRequest = require("./req");
 
 class ServerContext extends BaseContext {
-	constructor({origin = "http://localhost", html = ""} = {}) {
-		super();
+	constructor({ origin = "http://localhost", html = "" } = {}) {
+		super(arguments[0]);
 		this._window = new Window(this, origin, html);
 		this._logger = new ServerLogger(this);
 		this._request = new RequestManager(this, ServerRequest);
