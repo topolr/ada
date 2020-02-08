@@ -1,10 +1,12 @@
 import {view,View} from "adajs";
 import SponsorsService from "./state.js";
+import { template } from './template.html';
+import { style } from './style.scss';
 
 @view({
     className:"sponsors",
-    template:"./template.html",
-    style:"./style.scss",
+    template,
+    style,
     dataset:{
     	service:SponsorsService
     }

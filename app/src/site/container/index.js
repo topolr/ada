@@ -1,14 +1,16 @@
-import {BondViewGroup, handler, view} from "adajs";
+import { BondViewGroup, handler, view } from "adajs";
 import ContainerService from "./state.js";
 import Menu from "./../menu";
 import Content from "./../content";
 import Router from "./../../router";
 import Comment from "./../../lib/comment";
+// import { template } from './template.html';
+// import { style } from './style.scss';
 
 @view({
     className: "container",
-    template: "./template.html",
-    style: "./style.scss",
+    template: './template.html',
+    style: './style.scss',
     dataset: {
         service: ContainerService
     }
@@ -22,7 +24,7 @@ class Container extends BondViewGroup {
         }
         comment.login().then(() => {
             this.commit("setuserinfo", comment.session.userinfo);
-        }).catch(e=>console.log(e));
+        }).catch(e => console.log(e));
         this.context.comment = comment;
         let _router = this.router = new Router(this.context);
         this.getCurrentState().menu.forEach(item => {
@@ -44,7 +46,7 @@ class Container extends BondViewGroup {
     }
 
     @handler("flip")
-    flip({data}) {
+    flip({ data }) {
         if (window.innerWidth <= 1000) {
             this.commit("close").then(() => this.router.open(data));
         } else {
@@ -65,6 +67,16 @@ class Container extends BondViewGroup {
     @handler("login")
     login() {
         window.location.href = this.context.comment.getLoginURL();
+    }
+
+    @handler('snapshot')
+    rsnapshort() {
+        this.addChildApp({
+            name: 'dist',
+            container: this.context.document.body
+        }).then(() => {
+            this.context.snapshot();
+        });
     }
 }
 

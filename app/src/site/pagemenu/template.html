@@ -1,4 +1,4 @@
-<div class="{{ classname(data,['head','close','scroll']) }}" data-find="header">
+<div class="{{ join('head',data.close&&'close',data.scroll&&'scroll') }}" data-find="header">
     <div class="arrow" onclick="{{ togglewin() }}">
         <icon class="icon" @id="{{ data.arrowIcon }}"/>
     </div>

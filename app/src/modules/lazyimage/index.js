@@ -2,11 +2,13 @@ import {subscribe, view, View} from "adajs";
 import LazyimageService from "./state.js";
 import eventDispatcher from "../dispatcher";
 import "./../style/base.scss";
+import { template } from './template.html';
+import { style } from './style.scss';
 
 @view({
     className: "lazyimage",
-    template: "./template.html",
-    style: "./style.scss",
+    template,
+    style,
     dataset: {
         service: LazyimageService
     }

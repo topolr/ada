@@ -1,11 +1,13 @@
 import {view, ViewConnector} from "adajs";
 import Reply from "./../reply";
 import ContainerService from "./../container/state";
+import { template } from './template.html';
+import { style } from './style.scss';
 
 @view({
     className: "connector",
-    template: "./template.html",
-    style: "./style.scss"
+    template,
+    style
 })
 class Connector extends ViewConnector {
     setContextDataSets(connect) {

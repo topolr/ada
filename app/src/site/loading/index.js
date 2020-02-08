@@ -1,10 +1,12 @@
 import {view,View} from "adajs";
-import LoadingService from "./state.js";
+import LoadingService from "./state";
+import { template } from './template.html';
+import { style } from './style.scss';
 
 @view({
     className:"loading",
-    template:"./template.html",
-    style:"./style.scss",
+    template,
+    style,
     dataset:{
     	service:LoadingService
     }

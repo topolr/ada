@@ -1,10 +1,12 @@
 import {view, View} from "adajs";
 import ToastService from "./state";
+import { template } from './template.html';
+import { style } from './style.scss';
 
 @view({
 	className: "toast",
-	template: "./template.html",
-	style: "./style.scss",
+	template,
+	style,
 	dataset: {
 		service: ToastService
 	}

@@ -10,6 +10,7 @@
   "scripts": {
     "ada": "node ./node_modules/.bin/adajs",
     "dev": "./node_modules/.bin/ada-pack dev",
+    "start": "./node_modules/.bin/ada-pack start",
     "publish": "./node_modules/.bin/ada-pack publish",
     "ssr": "./node_modules/.bin/ada-pack ssr",
     "parse": "node ./doc/parser/parsedocs"
@@ -19,7 +20,7 @@
     "url": "https://github.com/topolr/ada-template.git"
   },
   "dependencies": {
-    "adajs": "latest",
+    "adajs": "file:../../ada/ada",
     "lodash": "^4.17.10"
   },
   "devDependencies": {
@@ -46,11 +47,11 @@
     "autoprefixer": "^8.6.2",
     "express": "^4.16.2",
     "html-minifier": "^3.5.17",
-    "koa": "^2.8.1",
+    "koa": "^2.11.0",
     "koa-static": "^5.0.0",
     "less": "^3.0.4",
     "marked": "git+https://github.com/topolr/marked.git",
-    "node-sass": "^4.9.0",
+    "node-sass": "^4.13.1",
     "uglify-es": "^3.3.9",
     "uglifycss": "0.0.29"
   },

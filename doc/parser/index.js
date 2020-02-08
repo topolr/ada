@@ -1,6 +1,6 @@
 let marked = require("marked");
 let Path = require("path");
-let {File} = require("ada-util");
+let { File } = require("ada-util");
 let hash = require("ada-util/src/md5");
 let minify = require('html-minifier').minify;
 
@@ -62,7 +62,7 @@ function getFilesInfo(path) {
 	});
 }
 
-function output({path, outpath, distpatch}) {
+function output({ path, outpath, distpatch }) {
 	return getFilesInfo(path).then(info => {
 		let pathInfo = {};
 		info.forEach(_info => {
@@ -178,7 +178,7 @@ function output({path, outpath, distpatch}) {
 
 module.exports = {
 	output() {
-		console.log(" [PARSE DOCS]");
+		console.log("[PARSE DOCS]");
 		return output({
 			path: Path.resolve(__dirname, "./../"),
 			outpath: Path.resolve(__dirname, "./../../dist/docs"),
@@ -186,7 +186,7 @@ module.exports = {
 		}).catch(e => console.log(e));
 	},
 	outputPage() {
-		console.log(" [COPY FILES]");
+		console.log("[COPY FILES]");
 		let distpatch = Path.resolve(__dirname, "./../../dist");
 		return ["CNAME", "LICENSE", "readme.md"].reduce((a, name) => {
 			return a.then(() => {

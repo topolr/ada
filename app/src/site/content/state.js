@@ -31,7 +31,7 @@ class ContentService extends Service {
 
 	@action("getpage")
 	getPage(current) {
-		return this.request.get(`${this.context.config.basePath}docs${current.url}?h=${current.hash}`).then(content => {
+		return this.request.get(`/docs${current.url}?h=${current.hash}`).then(content => {
 			current.content = content;
 		}).catch((e) => {
 			current.content = "";

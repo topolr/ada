@@ -2,11 +2,13 @@ import {binder, BondViewGroup, view} from "adajs";
 import ReplyService from "./state.js";
 import Toast from "./../../modules/toast";
 import Loading from "./../../modules/loading";
+import { template } from './template.html';
+import { style } from './style.scss';
 
 @view({
     className: "reply",
-    template: "./template.html",
-    style: "./style.scss",
+    template,
+    style,
     dataset: {
         service: ReplyService
     }

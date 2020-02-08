@@ -1,10 +1,12 @@
-import {binder, view, ViewGroup} from "adajs";
+import { binder, view, ViewGroup } from "adajs";
 import CommentService from "./state.js";
+import { template } from './template.html';
+import { style } from './style.scss';
 
 @view({
     className: "comment",
-    template: "./template.html",
-    style: "./style.scss",
+    template,
+    style,
     dataset: {
         service: CommentService
     }
@@ -33,8 +35,8 @@ class Comment extends ViewGroup {
         this.dispatchEvent("openreply");
     }
 
-    onrecover(){
-		this.commit("get");
+    onrecover() {
+        this.commit("get");
     }
 }
 

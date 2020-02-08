@@ -6,11 +6,13 @@ import prism from "./../../lib/prism";
 import Comment from "./../comment";
 import Connector from "./../connector";
 import "./../../lib/prism.css";
+import { template } from './template.html';
+import { style } from './style.scss';
 
 @view({
     className: "content",
-    template: "./template.html",
-    style: "./style.scss",
+    template,
+    style,
     dataset: {
         service: ContentService
     }
@@ -73,7 +75,7 @@ class Content extends StaticViewGroup {
                         prism.highlightAllUnder(this.getElement());
                     }
                     this.autoLoadModule().then(() => {
-                        this.context.snapshot();
+                        this.dispatchEvent('snapshot');
                     });
                 });
             }

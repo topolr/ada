@@ -1,11 +1,12 @@
-import {root, StaticViewGroup} from "adajs";
+import { root, StaticViewGroup } from "adajs";
 import Container from "./site/container";
-import "./style/reset.scss";
+import { active } from "./style/reset.scss";
 import "./icons";
 
 @root()
 class Root extends StaticViewGroup {
     onready() {
+        active();
         if (this.context.isBrowser) {
             let s = this.context.document.createElement("script");
             s.setAttribute("src", "https://www.googletagmanager.com/gtag/js?id=UA-128443242-1");

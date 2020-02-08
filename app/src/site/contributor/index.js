@@ -1,10 +1,12 @@
 import {view,View} from "adajs";
 import ContributorService from "./state.js";
+import { template } from './template.html';
+import { style } from './style.scss';
 
 @view({
     className:"contributor",
-    template:"./template.html",
-    style:"./style.scss",
+    template,
+    style,
     dataset:{
     	service:ContributorService
     }
