@@ -6,12 +6,12 @@ let app = {
         description: "ada.js is a isomorphic,immutable,integrated,structure-oriented web framework",
         keywords: "javascript,isomorphic,immutable,web framework",
         icons: [
-            { "src": "./app/src/icons/48@2x.png", "sizes": "48x48", "type": "image/png" },
-            { "src": "./app/src/icons/72@2x.png", "sizes": "72x72", "type": "image/png" },
-            { "src": "./app/src/icons/96@2x.png", "sizes": "96x96", "type": "image/png" },
-            { "src": "./app/src/icons/144@2x.png", "sizes": "144x144", "type": "image/png" },
-            { "src": "./app/src/icons/168@2x.png", "sizes": "168x168", "type": "image/png" },
-            { "src": "./app/src/icons/192@2x.png", "sizes": "192x192", "type": "image/png" }
+            { "path": "./app/src/icons/48@2x.png", "sizes": "48x48", "type": "image/png" },
+            { "path": "./app/src/icons/72@2x.png", "sizes": "72x72", "type": "image/png" },
+            { "path": "./app/src/icons/96@2x.png", "sizes": "96x96", "type": "image/png" },
+            { "path": "./app/src/icons/144@2x.png", "sizes": "144x144", "type": "image/png" },
+            { "path": "./app/src/icons/168@2x.png", "sizes": "168x168", "type": "image/png" },
+            { "path": "./app/src/icons/192@2x.png", "sizes": "192x192", "type": "image/png" }
         ],
         charset: "UTF-8",
         meta: [
