@@ -469,7 +469,7 @@ class ExtendModule {
 				info[key] = `0${info[key]}`;
 			}
 		});
-		console.group(`%c[Ada] HMR [${this.context.name}] ${info.year}-${info.month}-${info.day} ${info.hour}:${info.minus}:${info.second}`, "font-weight:bold");
+		console.group(`%c[ADA-HMR] [${this.context.name}] ${info.year}-${info.month}-${info.day} ${info.hour}:${info.minus}:${info.second}`, "font-weight:bold");
 		let temps = [], styles = [], modules = [];
 		let ps = Promise.resolve([]), outmap = [];
 		files = files.filter(file => {
@@ -512,6 +512,7 @@ class ExtendModule {
 				if (outmap.length > 0) {
 					console.log(`%c- ${outmap.length > 1 ? "files" : "file"} [${outmap.join(",")}] ${outmap.length > 1 ? "are" : "is"} out map`, "color:#3D78A7;font-weight:bold");
 				}
+				console.log(`%c- No file updated`, "color:#3D78A7;font-weight:bold");
 				console.groupEnd(`%cAll done,Nothing to update.`, "font-weight:bold");
 			});
 		}

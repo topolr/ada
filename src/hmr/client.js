@@ -21,25 +21,21 @@ let client = {
                         let app = data.app;
                         let _context = manager.getContext(app);
                         if (_context) {
-                            if (log && log.length === 0) {
-                                teminal.hide();
-                                if (bar.getState(_context)) {
-                                    if (data.type === "edit") {
-                                        bar.actionStart();
-                                        updater.refresh(_context, data.files, data.map).then(() => {
-                                            bar.actionDone();
-                                        }).catch((e) => {
-                                            console.error(e);
-                                            context.window.location.reload();
-                                        });
-                                    } else if (data.type !== "start") {
+                            teminal.showError(context, app, log || []);
+                            if (bar.getState(_context)) {
+                                if (data.type === "edit") {
+                                    bar.actionStart();
+                                    updater.refresh(_context, data.files, data.map).then(() => {
+                                        bar.actionDone();
+                                    }).catch((e) => {
+                                        console.error(e);
                                         context.window.location.reload();
-                                    }
-                                } else {
-                                    console.log(`%c[Ada] HMR is stopped`, "color:#3D78A7;font-weight:bold");
+                                    });
+                                } else if (data.type !== "start") {
+                                    context.window.location.reload();
                                 }
                             } else {
-                                teminal.showError(context, log || []);
+                                console.log(`%c[Ada] HMR is stopped`, "color:#3D78A7;font-weight:bold");
                             }
                             if (data.type === "reload") {
                                 context.window.location.reload();
