@@ -1,4 +1,4 @@
-import {BondViewGroup, root} from "./../../index";
+import { BondViewGroup, root } from "./../../index";
 import state from "./state";
 
 @root({
@@ -10,7 +10,7 @@ import state from "./state";
 	}
 })
 class Test extends BondViewGroup {
-	oncreated() {
+	onready() {
 		import("./../module2").then(Test2 => {
 			this.addChild(Test2.default, {
 				container: this.getElement()

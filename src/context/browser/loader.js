@@ -7,14 +7,10 @@ class EmptyPersistence {
     }
 
     getAll() {
-        return Promise.resolve({}).then(r => {
-            this.context._invokeHook("sourceready", r);
-            return r;
-        });
+        return Promise.resolve({});
     }
 
     saveAll(data) {
-        this.context._invokeHook("sourcepersistence", data);
         return Promise.resolve();
     }
 
@@ -34,13 +30,11 @@ class StoragePersistence {
             r = this.context.window.localStorage.getItem("ada-local-source");
         } catch (e) {
         }
-        this.context._invokeHook("sourceready", r);
         return Promise.resolve(r);
     }
 
     saveAll(data) {
         try {
-            this.context._invokeHook("sourcepersistence", data);
             this.context.window.localStorage.setItem("ada-local-source", JSON.stringify(data));
         } catch (e) {
         }
@@ -63,9 +57,9 @@ class DatabasePersistence {
         this.info = {
             name: "ada",
             version: 1,
-            store: "ada-local-source",
+            store: "ada-source",
             key: "name",
-            value: "local"
+            value: "source"
         }
     }
 
@@ -112,9 +106,6 @@ class DatabasePersistence {
                     resolve(request.result ? request.result.data : {});
                 };
             });
-        }).then(source => {
-            this.context._invokeHook("sourceready", source);
-            return source;
         });
     }
 
@@ -128,7 +119,6 @@ class DatabasePersistence {
                 transaction.onerror = () => {
                     resolve();
                 };
-                this.context._invokeHook("sourcepersistence", data);
                 transaction.objectStore(this.info.store).put({
                     name: this.info.value,
                     data: data
@@ -183,7 +173,6 @@ class ModuleLoader {
             source = code;
         }
         let info = { path, code: source };
-        this._context._invokeSyncHook("sourceexcute", info);
         return new Function("module", "exports", "require", "imports", "babelHelpers", "window", "document", info.code);
     }
 
@@ -239,10 +228,19 @@ class ModuleLoader {
             return Promise.resolve(current.exports);
         } else {
             return this.getModuleDependenceMap(path).then(moduleMap => {
-                for (let i in moduleMap) {
-                    this.moduleFnsLoaded[i] = this.getExcutor(i, moduleMap[i]);
-                }
-                return this.excute(path);
+                return Reflect.ownKeys(moduleMap).reduce((a, i) => {
+                    return a.then(() => {
+                        let info = {
+                            name: i,
+                            code: moduleMap[i]
+                        };
+                        return this._context._invokeHook('sourceexcute', info).then(() => info.code);
+                    }).then((code) => {
+                        this.moduleFnsLoaded[i] = this.getExcutor(i, code);
+                    });
+                }, Promise.resolve()).then(() => {
+                    return this.excute(path);
+                });
             });
         }
     }
@@ -378,12 +376,16 @@ class Loader {
         this._context = context;
         this._isinit = false;
         let target = null;
-        if (context.window.indexedDB || context.window.mozIndexedDB || context.window.webkitIndexedDB) {
-            target = new DatabasePersistence(context);
-        } else if (context.window.localStorage) {
-            target = new StoragePersistence(context);
-        } else {
+        if (context.config.develop || !context.isBrowser) {
             target = new EmptyPersistence(context);
+        } else {
+            if (context.window.indexedDB || context.window.mozIndexedDB || context.window.webkitIndexedDB) {
+                target = new DatabasePersistence(context);
+            } else if (context.window.localStorage) {
+                target = new StoragePersistence(context);
+            } else {
+                target = new EmptyPersistence(context);
+            }
         }
         this.persistence = target;
     }
@@ -412,7 +414,7 @@ class Loader {
         if (!this._isinit) {
             return this.persistence.getAll().then(source => {
                 this._isinit = true;
-                this._source = Object.assign({}, source, this.source);
+                this._source = Object.assign({}, source, this._source);//？？？？？
                 return this.persistence.saveAll(this.source);
             });
         } else {
@@ -428,10 +430,6 @@ class Loader {
                 reject(err);
             });
         });
-    }
-
-    getSourceCode(path) {
-        return this.context.request.origin({ url: path, method: 'get' }).promise.then(info => info.data);
     }
 
     getRealPath(path, ispackage = false) {
@@ -453,6 +451,10 @@ class Loader {
         return `${option.basePath[option.basePath.length - 1] === "/" ? option.basePath : option.basePath + "/"}${r}`;
     }
 
+    getSourceCode(path) {
+        return this.context.request.origin({ url: path, method: 'get' }).promise.then(info => info.data);
+    }
+
     getSourceByHash(filepath, path, rhash) {
         let r = 0, option = this.context.config;
         let file = Reflect.ownKeys(option.sourceMap.packages).filter(packetname => {
@@ -461,28 +463,32 @@ class Loader {
         if (file) {
             option.sourceMap.packages[file].split("|").forEach(key => {
                 let name = Reflect.ownKeys(option.sourceMap).filter(name => option.sourceMap[name] === key)[0];
-                if (!this.source[name] || this.source[name].hash !== key) {
+                let hash = option.sourceMap[name];
+                if (!this.source[hash]) {
                     r += 1;
                 }
             });
             if (r > 1) {
                 return this.getSourceCode(`${this.getRealPath(file + ".js", true)}`).then(code => {
-                    let info = JSON.parse(code.substring(code.indexOf(",")+1, code.length - 1));
-                    Object.assign(this.source, info);
+                    let info = JSON.parse(code.substring(code.indexOf(",") + 1, code.length - 1));
+                    Reflect.ownKeys(info).forEach(name => {
+                        let { hash, code } = info[name];
+                        this.source[hash] = code;
+                    });
                     return this.persistence.saveAll(this.source).then(() => {
-                        return this.source[path].code;
+                        return this.source[rhash];
                     });
                 });
             } else {
                 return this.getSourceCode(`${this.getRealPath(filepath)}`).then(code => {
-                    this.source[path] = { code, hash: rhash };
+                    this.source[rhash] = code;
                     return this.persistence.saveAll(this.source).then(() => code);
                 });
             }
         } else {
             if (rhash) {
                 return this.getSourceCode(`${this.getRealPath(filepath)}`).then(code => {
-                    this.source[path] = { code, hash: rhash };
+                    this.source[rhash] = code;
                     return this.persistence.saveAll(this.source).then(() => code);
                 });
             } else {
@@ -494,17 +500,9 @@ class Loader {
     getSource(filepath) {
         return this.ready().then(() => {
             let path = getMappedPath(filepath), option = this.context.config;
-            if (this.source[path]) {
-                let hash = this.source[path].hash, rhash = option.sourceMap[path];
-                if (hash && rhash) {
-                    if (rhash === hash) {
-                        return this.source[path].code;
-                    } else {
-                        return this.getSourceByHash(filepath, path, rhash);
-                    }
-                } else {
-                    return this.getSourceCode(`${this.getRealPath(filepath)}`);
-                }
+            let rhash = option.sourceMap[path];
+            if (this.source[rhash]) {
+                return this.source[rhash];
             } else {
                 if (option.sourceMap) {
                     return this.getSourceByHash(filepath, path, option.sourceMap[path]);
@@ -528,10 +526,13 @@ class Loader {
     }
 
     decompress(source = {}) {
-        if (!this.source) {
-            this.source = {};
+        if (!this._source) {
+            this._source = {};
         }
-        Object.assign(this.source, source);
+        Reflect.ownKeys(source).forEach(name => {
+            let { hash, code } = source[name];
+            this._source[hash] = code;
+        });
     }
 }
 

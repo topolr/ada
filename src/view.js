@@ -30,7 +30,6 @@ let {
 let { DataSet, DataSetHelper } = require("./dataset");
 let Collector = require("./base/collector");
 let { ViewHadRemovedError } = require("./util/error");
-let manager = require("./manager");
 
 const macros = {
     module({ bodyStr, props, events, attrs }) {
@@ -229,6 +228,10 @@ class BaseView {
 
     isOuterView() {
         return this[OUTERVIEW] === true;
+    }
+
+    isRoot() {
+        return this.getElement().dataset.module === 'ada-root' && this.getElement().dataset.appName === this.context.name;
     }
 
     finder(name) {
@@ -1061,8 +1064,8 @@ class BondViewGroup extends ViewGroup {
 
     addChildApp({ name, container }) {
         if (!this.isRemoved()) {
-            let context = manager.getContext(name);
-            return context.boot({ container }).then(view => {
+            let context = this.context.manager.getContext(name);
+            return context.boot({ container, parent: this }).then(view => {
                 if (!view.isRemoved()) {
                     setProp(view, OUTERVIEW, true);
                     this.getChildren().push(view);

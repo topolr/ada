@@ -21,10 +21,10 @@ let util = {
 			if (basePath) {
 				info.module = basePath;
 				if (info.style) {
-					info.style = Path.resolve(basePath, "./../", info.style);
+					info.style = { path: Path.resolve(basePath, "./../", info.style) };
 				}
 				if (info.template) {
-					info.template = Path.resolve(basePath, "./../", info.template);
+					info.template = { path: Path.resolve(basePath, "./../", info.template) }
 				}
 			}
 		}

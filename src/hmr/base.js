@@ -1,5 +1,4 @@
 let Metadata = require("../lib/metadata");
-let factory = require("./../util/factory");
 let { excuteStyle, getMappedPath, isFunction, parseStyle, queue, parseTemplate, setProp } = require("../util/helper");
 let { ROOTELEMENTNAME, VIEWTAG } = require("../util/const");
 let { DATASETRANSACTION, DATASETRANSACTIONSTATE, PREREMOVED, DDMTAG, VIEWINFO, BINDERS } = require("./../util/const");
@@ -191,7 +190,7 @@ class ExtendModule {
 				for (let i = 0; i < r.length; i++) {
 					let info = r[i];
 					if (isFunction(info.clazz) && module instanceof info.clazz) {
-						if (element === context.document.getElementById("ada-root")) {
+						if (element.dataset.module === 'ada-root') {
 							ismainentry = true;
 							changeInfos.length = 0;
 						}
@@ -381,16 +380,14 @@ class ExtendModule {
 				newview.oncreated();
 				return newview._render().then(() => {
 					view._clean();
-					if (!newview.isRemoved()) {
-						return Promise.resolve().then(() => newview.onready()).then(() => {
-							if (stateTree) {
-								console.log("%c- Try to reset module state...", "color:#3D78A7;font-weight:bold");
-								return this.injectStateTreeToView(newview, stateTree).then(() => {
-									console.log("%c- Reset module state done", "color:#3D78A7;font-weight:bold");
-								});
-							}
-						});
-					}
+					return Promise.resolve().then(() => newview.onready()).then(() => {
+						if (stateTree) {
+							console.log("%c- Try to reset module state...", "color:#3D78A7;font-weight:bold");
+							return this.injectStateTreeToView(newview, stateTree).then(() => {
+								console.log("%c- Reset module state done", "color:#3D78A7;font-weight:bold");
+							});
+						}
+					});
 				});
 			}
 		});
@@ -440,7 +437,7 @@ class ExtendModule {
 				console.log(`%c- Install modules done,Reset page [${changeInfo.isroot ? "From ROOT" : "From Entry"} of ${changeInfo.infos[0].module.getClassName()}]...`, "color:#3D78A7;font-weight:bold");
 				console.log(`%c- Try to update [${changeInfo.infos.length}] views...`, "color:#3D78A7;font-weight:bold");
 				return queue(changeInfo.infos.map(info => () => {
-					let element = info.element, module = info.module, name = info.name;
+					let { element, module, name } = info;
 					let clazz = this.context._loader.moduleLoader.get(name);
 					return this.resetView({
 						view: module,

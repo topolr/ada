@@ -3,6 +3,7 @@ let Window = require("./window");
 let ServerLogger = require("./logger");
 let RequestManager = require("./../local/request");
 let ServerRequest = require("./req");
+let Loader = require("./loader");
 
 class ServerContext extends BaseContext {
 	constructor({ origin = "http://localhost", html = "" } = {}) {
@@ -10,6 +11,7 @@ class ServerContext extends BaseContext {
 		this._window = new Window(this, origin, html);
 		this._logger = new ServerLogger(this);
 		this._request = new RequestManager(this, ServerRequest);
+		this._loader = new Loader(this);
 	}
 
 	get window() {

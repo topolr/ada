@@ -1,22 +1,22 @@
 require("colors");
-let factory = require("../src/util/factory");
 let ServerContext = require("../src/context/server/index");
 let env = require("../src/env");
-let {root, BondViewGroup, View} = require("../index");
-let {SyncFile} = require("ada-util");
+let { root, BondViewGroup, View } = require("../index");
+let { SyncFile } = require("ada-util");
 let Path = require("path");
 let Loader = require("../src/context/browser/loader");
-let {VIEWTAG} = require("../src/util/const");
+let { VIEWTAG } = require("../src/util/const");
 let stream = require('stream');
+let Manager = require("./../src/manager");
 
 class DefaultRootView extends BondViewGroup {
 }
 
-root({className: ""})(DefaultRootView);
+root({ className: "" })(DefaultRootView);
 
 class Renderer {
-	constructor({origin = "http://localhost", html = ""} = {}) {
-		this._context = new ServerContext({origin, html});
+	constructor({ origin = "http://localhost", html = "" } = {}) {
+		this._context = new ServerContext({ origin, html, siteURL: origin, name: 'root' });
 	}
 
 	get env() {
@@ -37,59 +37,49 @@ class Renderer {
 			view = DefaultRootView;
 		}
 		let context = this._context;
-		return factory.getRootView(view, parameters, context).then(root => {
-			context.document.addEventListener("DOMNodeRemoved", (e) => factory.cleanView(e.target));
+		return context.getRootView({ rootClass: view, parameters, container: context.document.body }).then(root => {
+			context.document.addEventListener("DOMNodeRemoved", (e) => context._cleanView(e.target));
 			return root;
 		});
 	}
 }
 
 class DistRenderer {
-	constructor({origin = "http://localhost", distPath = ""} = {}) {
+	constructor({ origin = "http://localhost", distPath = "" } = {}) {
 		this._init = false;
 		this._outputTask = [];
 		this._currentTask = null;
 		this._lastSnapshot = null;
-		let context = new ServerContext({
+		const manager = new Manager(ServerContext, {
 			origin,
 			html: new SyncFile(Path.resolve(distPath, "index.html")).read()
 		});
-		context._loader = new Loader(context);
+		manager.context._loader = new Loader(manager.context);
+		manager.setContext(context => {
+			context._window = manager.context._window;
+			context._loader = new Loader(context);
+		});
 		let ada = {};
-		context.window.Ada = ada;
-		ada.modules = context.loader.moduleLoader;
-		ada.unpack = (info) => {
-			context.loader.decompress(info);
+		manager.context.window.Ada = ada;
+		ada.unpack = (appName, info) => {
+			manager.unpack(appName, info);
 		};
 		ada.installModule = (name, module) => {
-			context.loader.moduleLoader.set(name, module);
-		};
-		ada.init = (initer) => {
-			factory.init(context, initer);
+			manager.installModule(name, module);
 		};
 		ada.recover = () => {
 		};
 		ada.boot = (ops) => {
-			if (ops.develop) {
-				Reflect.ownKeys(ops.map.packages).forEach(key => {
-					new Function("Ada", new SyncFile(Path.resolve(distPath, `${key}.js`)).read())(ada);
-				});
-			} else {
-				Reflect.ownKeys(ops.map.packages).forEach(key => {
-					new Function("Ada", new SyncFile(Path.resolve(distPath, `${ops.map[key]}.js`)).read())(ada);
-				});
-			}
-			ops.context = context;
-			return factory.boot(ops);
+			manager.boot(ops);
 		};
-		context.loader.moduleLoader.installed.adajs = {exports: require("../index")};
-		context._snapshootalways = () => {
+		manager.installModule("adajs", require("../index"));
+		manager._snapshootalways = () => {
 			let info = this._currentTask;
-			if (info && info.url === context.window.location.href) {
+			if (info && info.url === manager.context.window.location.href) {
 				clearTimeout(info.timmer);
 				let snapshortstr = "<!DOCTYPE html>" + this.getCurrentHTML();
 				this._lastSnapshot = {
-					url: context.window.location.href,
+					url: manager.context.window.location.href,
 					code: snapshortstr
 				};
 				info.fn(snapshortstr);
@@ -97,7 +87,8 @@ class DistRenderer {
 			this._currentTask = null;
 			this._next();
 		};
-		this._context = context;
+		this._context = manager.context;
+		this._manager = manager;
 		this.script = "";
 		this._context.document.querySelectorAll("script").some(el => {
 			let code = el.innerHTML;
@@ -142,7 +133,7 @@ class DistRenderer {
 					fn: resolve,
 					timmer: setTimeout(() => {
 						throw Error("[ada] program runs slowly or no snapshot calls");
-					}, 1000)
+					}, 1500)
 				});
 				this._next();
 			});
@@ -181,7 +172,7 @@ class DistRenderer {
 	}
 
 	_getRootView() {
-		let rootElement = this.context.document.getElementById("ada-root");
+		let rootElement = this.context.document.getElementById(`ada-root-${this._manager._root}`);
 		return rootElement[VIEWTAG];
 	}
 
@@ -303,4 +294,4 @@ class DistSteamRenderer extends DistRenderer {
 	}
 }
 
-module.exports = {Renderer, DistRenderer, DistSteamRenderer};
+module.exports = { Renderer, DistRenderer, DistSteamRenderer };

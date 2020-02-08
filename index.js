@@ -21,15 +21,11 @@ let {
 } = require("./src/util/helper");
 let BrowserContext = require("./src/context/browser");
 let env = require("./src/env");
-let manager = require("./src/manager");
+let Manager = require("./src/manager");
 
 if (isBrowser()) {
-    manager._init(BrowserContext);
+    const manager = new Manager(BrowserContext);
     manager._context.window.Ada = {
-        // modules: context.loader.moduleLoader,
-        init(initer) {
-            // factory.init(context, initer);
-        },
         boot(ops) {
             manager.boot(ops);
         },
@@ -43,7 +39,7 @@ if (isBrowser()) {
             manager.recover(info);
         }
     };
-    // Dispatcher.request = context.request;
+    Dispatcher.request = manager.context.request;
 }
 
 module.exports = {

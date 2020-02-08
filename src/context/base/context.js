@@ -14,39 +14,33 @@ class BaseContext {
 			name: ''
 		}, config);
 		this._loader = null;
-		this._onsnapshoot = null;
-		this._snapshootalways = null;
+		this._manager = null;
+		this._manifest = null;
+		this._manifestPs = null;
 		this._hooks = {
-			initdone: [],
-			bootdone: [],
-			recoverdone: [],
-			sourceexcute: [],
-			sourceready: [],
-			sourcepersistence: []
+			sourceexcute: []
 		};
-		this._bootFlow = Promise.resolve();
-		this._steps = [];
 	}
 
 	_invokeHook(type, params) {
+		return (this._hooks[type] || []).reduce((a, hooker) => {
+			return a.then(() => {
+				return Promise.resolve().then(() => hooker(params));
+			});
+		}, Promise.resolve());
+	}
+
+	hook(type, fn) {
 		let t = this._hooks[type];
-		if (t) {
-			return t.reduce((a, hook) => {
-				return a.then(info => {
-					return new Promise(resolve => {
-						hook(params, result => resolve(result), info);
-					});
-				});
-			}, Promise.resolve(params));
+		if (t && t.indexOf(fn) === -1) {
+			t.push(fn);
 		}
 	}
 
-	_invokeSyncHook(type, params) {
-		let t = this._hooks[type];
-		if (t) {
-			return t.reduce((a, hook) => {
-				return hook(params, a);
-			}, params);
+	unhook(type, fn) {
+		let t = this._hooks[type], i = t.indexOf(fn);
+		if (i !== -1) {
+			t.splice(i, 1);
 		}
 	}
 
@@ -94,10 +88,9 @@ class BaseContext {
 		});
 	}
 
-	getRootView({ rootClass, container, parameter = {} }) {
+	getRootView({ rootClass, container, parameter = {}, parent = null }) {
 		let rootElement = this.document.createElement("div");
-		// rootElement.setAttribute("id", ROOTELEMENTNAME);
-		// rootElement.setAttribute("class", ROOTELEMENTNAME);
+		rootElement.setAttribute("id", `ada-root-${this.config.name}`);
 		rootElement.setAttribute("data-module", `ada-root`);
 		rootElement.setAttribute("data-app-name", this.config.name);
 		container.appendChild(rootElement);
@@ -105,10 +98,10 @@ class BaseContext {
 		if (!root) {
 			return this.getViewInstance({
 				viewClass: rootClass,
-				parent: null,
+				parent,
 				dom: rootElement,
 				tag: "root",
-				name: "root",
+				name: `ada-root-${this.name}`,
 				useProps: [],
 				context: this
 			}).then(view => {
@@ -122,67 +115,70 @@ class BaseContext {
 		return Promise.resolve(root);
 	}
 
-	getManifest() {
-		return this.request.get(this.config.siteURL + 'manifest.json');
-	}
-
-	init(initer) {
-		this._steps.push("init");
-		if (initer) {
-			this._bootFlow = this._bootFlow.then(() => initer.call({ context: this })).then(info => {
-				return this._invokeHook("initdone", info);
-			});
+	ready() {
+		if (!this._manifest) {
+			if (!this._manifestPs) {
+				let url = this.config.siteURL;
+				if (url[url.length - 1] !== '/') {
+					url = url + '/';
+				}
+				this._manifestPs = this.request.origin({
+					url: `${url}manifest.json`,
+					method: 'get'
+				}).promise.then(info => JSON.parse(info.data)).then(info => {
+					this._manifest = info;
+					this._manifestPs = null;
+					return this._manifest;
+				}).then((info) => {
+					let basePath = info.siteURL;
+					let { root, develop, map, initer, worker } = info;
+					Object.assign(this._config, { root, basePath, develop, sourceMap: map });
+					env.develop = info.develop;
+					if (initer) {
+						let q = new Function(`return ${initer}`)();
+						q(this);
+					}
+					if (worker) {
+						let { url, scope } = worker;
+						if (navigator.serviceWorker) {
+							let t = navigator.serviceWorker.register(url, { scope });
+							this._invokeHook('serviceworker', t);
+						}
+					}
+				});
+			}
+			return this._manifestPs;
+		} else {
+			return Promise.resolve();
 		}
 	}
 
-	boot({ parameter = {}, container } = {}) {
-		return this.getManifest().then(info => {
-			let basePath = info.siteURL;
-			let { root, develop, map } = info;
-			this._steps.push("boot");
-			Object.assign(this._config, { root, basePath, develop, parameter, sourceMap: map });
-			env.develop = info.develop;
+	boot({ parameter = {}, container, parent = null } = {}) {
+		return this.ready().then(() => {
+			Object.assign(this._config, { parameter });
+			let root = this._config.root;
 			if (root.indexOf("./") === 0) {
 				root = root.substring(2);
 			}
 			if (root.indexOf("/") === 0) {
 				root = root.substring(1);
 			}
-			this._bootFlow = this._bootFlow.then(() => {
-				return this.loader.loadModule(root).then(() => {
-					let rootClass = null;
-					this.loader.moduleLoader.scanClass((path, module) => {
-						if (Metadata.getMetadata("root", module.prototype)) {
-							rootClass = module;
-							return false;
-						}
-					});
-					if (rootClass) {
-						return this.getRootView({ rootClass, container, parameter });
-					} else {
-						console.error("root class can not find");
-						return Promise.reject();
+			return this.loader.loadModule(root).then(() => {
+				let rootClass = null;
+				this.loader.moduleLoader.scanClass((path, module) => {
+					if (Metadata.getMetadata("root", module.prototype)) {
+						rootClass = module;
+						return false;
 					}
 				});
-			}).then((view) => {
-				return this._invokeHook("bootdone").then(() => view);
+				if (rootClass) {
+					return this.getRootView({ rootClass, container, parameter, parent });
+				} else {
+					console.error("root class can not find");
+					return Promise.reject();
+				}
 			});
-			return this._bootFlow;
 		});
-	}
-
-	hook(type, fn) {
-		let t = this._hooks[type];
-		if (t && t.indexOf(fn) === -1) {
-			t.push(fn);
-		}
-	}
-
-	unhook(type, fn) {
-		let t = this._hooks[type], i = t.indexOf(fn);
-		if (i !== -1) {
-			t.splice(i, 1);
-		}
 	}
 
 	get loader() {
@@ -227,9 +223,12 @@ class BaseContext {
 		return null;
 	}
 
+	get manager() {
+		return this._manager;
+	}
+
 	snapshot() {
-		this._snapshootalways && this._snapshootalways();
-		this._onsnapshoot && this._onsnapshoot();
+		this._manager && this._manager.snapshot();
 	}
 }
 

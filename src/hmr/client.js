@@ -1,14 +1,13 @@
 let updater = require("./updater");
 let bar = require("./ui/controlbar");
 let teminal = require("./ui/teminal");
-let manager = require("./../manager");
 
 const tryTime = 100;
 
 let client = {
     state: true,
     tryTime: tryTime,
-    start() {
+    start(manager) {
         let context = manager._context;
         if (context.window.EventSource) {
             context.window.addEventListener("load", () => {
@@ -31,7 +30,7 @@ let client = {
                                             bar.actionDone();
                                         }).catch((e) => {
                                             console.error(e);
-                                            // context.window.location.reload();
+                                            context.window.location.reload();
                                         });
                                     } else if (data.type !== "start") {
                                         context.window.location.reload();
@@ -48,7 +47,7 @@ let client = {
                         }
                     } catch (e) {
                         console.error(e);
-                        // context.window.location.reload();
+                        context.window.location.reload();
                     }
                 });
                 source.addEventListener('error', (e) => {

@@ -1,6 +1,5 @@
 let { BondViewGroup, StaticViewGroup, View, ViewConnector, ViewGroup } = require("./src/view");
 let { DataSet, DataSetHelper, Service, TransactDataSet } = require("./src/dataset");
-let factory = require("./src/util/factory");
 let client = require("./src/hmr/client");
 let { PROXYSTATE, VIEWTAG, ROOTELEMENTNAME } = require("./src/util/const");
 let { Dispatcher } = require("./src/dispatcher");
@@ -24,17 +23,12 @@ let {
 } = require("./src/util/helper");
 let BrowserContext = require("./src/context/browser");
 let env = require("./src/env");
-let manager = require("./src/manager");
+let Manager = require("./src/manager");
 
 if (isBrowser()) {
-    // let context = new BrowserContext();
     env.develop = true;
-    manager._init(BrowserContext);
+    const manager = new Manager(BrowserContext);
     manager._context.window.Ada = {
-        // modules: context.loader.moduleLoader,
-        init(initer) {
-            // factory.init(context, initer);
-        },
         boot(ops) {
             manager.boot(ops);
         },
@@ -126,8 +120,8 @@ if (isBrowser()) {
             return "Logger Stopped";
         }
     };
-    client.client.start();
-    // Dispatcher.request = context.request;
+    client.client.start(manager);
+    Dispatcher.request = manager.context.request;
 }
 
 module.exports = {
