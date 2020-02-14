@@ -446,7 +446,7 @@ class BaseView {
                         name = props["name"] || null,
                         id = props["id"],
                         useProps = props["useProps"] ? [...props["useProps"]] : [];
-                    if (!cache || cache.constructor !== clazz || cache.isRemoved() || cache.getName() !== name || (props.hasOwnProperty('id') && cache.getId() !== id)) {
+                    if (!cache || cache.constructor !== clazz || cache.isRemoved() || (props.hasOwnProperty('name') && cache.getName() !== name) || (props.hasOwnProperty('id') && cache.getId() !== id)) {
                         let ps = Promise.resolve();
                         if (cache && !cache.isRemoved()) {
                             ps = ps.then(() => cache._remove());
